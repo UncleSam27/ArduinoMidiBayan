@@ -202,7 +202,7 @@ int Menu(int DefaultChoise, char MenuSttring[]) {
       if(NeedLoad != 0){
         LoadConfigFromFlashEEPROM();
         NeedLoad = 0;
-        delay(DelayNorm);
+        delay(DelaySmall);
       }
       
       //////////////////////////////////

@@ -732,7 +732,6 @@ uint8_t MenuChangeHotkey(Hotkey *Hotk) {
 // Create Hotkey Menu
 void MenuCreateHotkey(){
   Hotkey *Hotk;
-  //strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset>Load fast>Freeze In" );  
   strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset" );
   int Choise = Menu(1, MenuStr);
   
