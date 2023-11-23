@@ -1,16 +1,17 @@
-#include <GyverTimers.h>
-#include <GyverEncoder.h>
+#include <EEPROM.h>
 #include "config.h"
 #include "beeper.h"
 #include "midi.h"
 #include "lcd.h"
 #include "menu.h"
+#include "menufunc.h"
 #include "keyboard.h"
 #include "keyboards.h"
 #include "tests.h"
-#include "comfunc.h"
 #include "sdcard.h"
-
+#include "keybloadsave.h"
+#include "debug.h"
+#include "control.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -19,17 +20,10 @@
 // Service function
 
 // Setup Pin as Input width pool up
-void   InitKeyPullUp(int pin) {
+void   InitKeyPullUp(int pin){
   pinMode(pin, INPUT);
   digitalWrite(pin, HIGH);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Прерывание таймера для опроса энкодера
-ISR(TIMER1_A) {
-  Encodr.tick();  // отработка в прерывании тиков энкодера
-}
-
 
 
 //################################### SETUP ########################################
@@ -57,18 +51,12 @@ void setup() {
   DebugPrintLn(GlobalProgramChangeMode);
   DebugPrintLn("EEPROM read complete\n"); 
   
-  // Настраиваем тип и режим работы энкодера (вынести в отдельную функцию)
-  Encodr.setType(Enc_Type);
-  Encodr.setDirection(Enc_Direction);
-  Encodr.setTickMode(MANUAL);
-
-
-  // Настраиваем таймер и включаем прерывания
-  Timer1.setFrequency(20);
-  Timer1.disableISR(CHANNEL_A);
-  //Timer1.enableISR(CHANNEL_A);  // не включаем, пользуемся опросом, включаем только в графическом меню 
+  // Настраиваем тип и режим работы энкодера
+  MenuEncoderSetup();
   DebugPrintLn("Encoder init Done");
-
+    
+  MenuInit();
+  DebugPrintLn("Menu init Done");
 
   LCDInit();
   DebugPrintLn("LCD Init Done"); 
@@ -87,18 +75,17 @@ void setup() {
     MsgPrint("Try Again...");
   }
 
-  if(LoadKeybFromFlash("keyboard.cfg") !=0){
+  if(LoadKeybFromFlash(KeybFilename) !=0){
     MsgPrint("SD Cfg Error");
-    DebugPrintLn("Load SD keyboard.cfg Error!"); 
+    DebugPrintLn("Load SD " KeybFilename "Error!"); 
     while(1);
   }else{
-    DebugPrintLn("Load SD keyboard.cfg sucess!");
-    Encodr.setType(Enc_Type); //final encoder init
-    Encodr.setDirection(Enc_Direction);
+    DebugPrintLn("Load SD " KeybFilename " sucess!");
+    MenuEncoderSetup();
     LCDRotation(LCD_rotation);
   }
-  /**/
 
+  MsgPrintWait("cfg load");
 
   if (digitalRead(BTN_RST)){   
     //Normal start
@@ -125,6 +112,6 @@ void setup() {
 
 //#################################### MAIN LOOP ##################################
 void loop() {
-    MenuMain();
-   
+  MsgPrintWait("Ready");
+  //MenuMain();
 }

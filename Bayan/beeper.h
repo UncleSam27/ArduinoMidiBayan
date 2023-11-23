@@ -3,23 +3,9 @@
 
 #include "config.h"
 
-//Global varible - Да это ужасно, потом надо будет переделать.
-// 1-Beep on
-// 2-Beep off
-char GlobalBeepOn;
+extern char GlobalBeepOn;
 
-// Long Beep 
-void Beep(int del) {
-  if(GlobalBeepOn==1){
-    digitalWrite(BeeperPin, HIGH);
-    delay(del);
-    digitalWrite(BeeperPin, LOW);
-  }  
-}
-
-//Short Beep
-void Klick() {
-    Beep(2); 
-}
+void Beep(int del);
+void Klick();
 
 #endif
