@@ -9,12 +9,12 @@ https://www.youtube.com/watch?v=LLQwLPUeWa8
 avr-gcc 7.3.0-atmel3.6.1-arduino7  (Arduino IDE)
 
 **Used lib**
-EEPROM ver 2.0 
-U8glib ver 1.19.1 
-BMP280_DEV ver 1.0.21 
-Wire ver 1.0 
-SPI ver 1.0 
-SD ver 1.2.4 
-GyverEncoder ver 4.10 
-GyverTimers ver 1.10 
-Adafruit_NeoPixel ver 1.11.0 
+EEPROM ver 2.0,   
+U8glib ver 1.19.1, 
+BMP280_DEV ver 1.0.21, 
+Wire ver 1.0, 
+SPI ver 1.0, 
+SD ver 1.2.4, 
+GyverEncoder ver 4.10, 
+GyverTimers ver 1.10, 
+Adafruit_NeoPixel ver 1.11.0, 
