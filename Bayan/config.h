@@ -1,6 +1,5 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-//#include <GyverEncoder.h>
 
 #define SCREEN_MINI12864_2_1 
 //#define SCREEN_MINI12864_2_0 
