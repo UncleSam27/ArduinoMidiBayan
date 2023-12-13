@@ -1,14 +1,15 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SCREEN_MINI12864_2_1 
+//select one of screen
+//#define SCREEN_MINI12864_2_1 
 //#define SCREEN_MINI12864_2_0 
-//#define SCREEN_RepRapDiscount 
+#define SCREEN_RepRapDiscount 
 
-//uncoment for debug ver
+//uncomment for debug ver
 //#define Debug
 
-#define Version "2.4.16 Mini"
+#define Version "2.4.16"
 
 //############################## Hardware pin defines ###################################
 
@@ -23,10 +24,10 @@
   #define LCD_E  46 //SCK
   #define SD_DET 47
 /**/
-  #define LCD_RS 45 //CS
-  #define LCD_RW 51 //MOSI
-  #define LCD_E  52 //SCK
-  #define SD_DET 47
+  #define LCD_RS 43 //CS
+  #define LCD_RW 42 //MOSI
+  #define LCD_E  45 //SCK
+  #define SD_DET 44
 
 #else //SCREEN_MINI12864_2_0 or SCREEN_MINI12864_2_1
   #define LCD_RS 43 //CS
@@ -73,7 +74,7 @@
 #define AddressBMP280Norm        3990
 #define AddressInputKeysMask     3980
 
-#define InitScanMode             1           // 0-scan in passive mode (gerkon)    1-scan in active mode (hall)
+#define InitScanMode             1  // 0-scan in passive mode (gerkon)    1-scan in active mode (hall)
 #define InitNormal_Pin_State     2  // 0-"normal opened contacts"  1-"normal closed contacts"  2-"auto detect"
 #define InitKeyInputPinStart     22  
 #define InitKeyInputPinStop      35
