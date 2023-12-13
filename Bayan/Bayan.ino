@@ -19,11 +19,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Service function
 
-// Setup Pin as Input width pool up
-void   InitKeyPullUp(int pin){
-  pinMode(pin, INPUT);
-  digitalWrite(pin, HIGH);
-}
+
 
 
 //################################### SETUP ########################################
@@ -31,11 +27,7 @@ void setup() {
   MidiInit();
   DebugPrint("\nMidi Init Done\r\n"); 
   
-  // Buttons PullUp
-  InitKeyPullUp(BTN_RST);
-  InitKeyPullUp(ENC_BTN);
-  InitKeyPullUp(ENC_L);
-  InitKeyPullUp(ENC_R);
+  InitKeys();
   pinMode(BeeperPin, OUTPUT);   // Pin For Beeper
   DebugPrint("Pins init complete\r\n"); 
 
@@ -75,6 +67,9 @@ void setup() {
     MsgPrint("Try Again...");
   }
 
+  MyKeyb = InitKeyboard(NULL);
+  DebugPrintLn("Keyboard obj init");
+  
   if(LoadKeybFromFlash(KeybFilename) !=0){
     MsgPrint("SD Cfg Error");
     DebugPrintLn("Load SD " KeybFilename "Error!"); 
@@ -84,9 +79,7 @@ void setup() {
     MenuEncoderSetup();
     LCDRotation(LCD_rotation);
   }
-
-  MsgPrintWait("cfg load");
-
+  
   if (digitalRead(BTN_RST)){   
     //Normal start
     char FName[10];
@@ -112,6 +105,5 @@ void setup() {
 
 //#################################### MAIN LOOP ##################################
 void loop() {
-  MsgPrintWait("Ready");
-  //MenuMain();
+  MenuMain();
 }

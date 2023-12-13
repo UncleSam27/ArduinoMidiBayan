@@ -46,7 +46,7 @@ KeyboardS::KeyboardS() {
     pinMode(counter, INPUT);
     digitalWrite(counter, LOW);
   }
-  //Get input mask
+  //Get input mask (Normal pin state)
   ScanKeyMatrixLow(InputKeysMask);
 
   // Init Midi Chanels
@@ -615,6 +615,28 @@ int KeyboardS::GetBoxMenuValue(DataBox * Value) {
   }
   return Tmp;
 }
-
-
 // class KeyboardS end
+
+
+
+
+
+
+// ----------------------------------------------------------------------
+KeyboardS *InitKeyboard(KeyboardS *Keybs){
+
+    /////kill em all! (easy way to kill all with destructor) 
+    if (Keybs != NULL) delete MyKeyb;
+    Keybs = NULL;
+    
+    // and create new!
+    Keybs = new KeyboardS();
+    
+    if (Keybs==NULL){
+       DebugPrintLn("ERROR: cant create object keyboard");
+    }  else {
+       DebugPrintLn("Create object keyboard");      
+    }/**/
+
+    return Keybs;
+}

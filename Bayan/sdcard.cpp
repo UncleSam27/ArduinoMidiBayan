@@ -174,7 +174,10 @@ int SD_Init() {
   digitalWrite(SD_DET, HIGH);
   
   // Full Check Card if debug enabled
-  if(Debug) SD_Debug();
+#ifdef Debug
+  SD_Debug();
+#endif
+
     
   // try use full speed  
   DebugPrint("Try Normal SD Init on full speed\r\n");

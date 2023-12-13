@@ -2,23 +2,30 @@
 #include "config.h"
 #include <Arduino.h>
 
-void DebugPrint(char Str[]){
-    if(Debug) Serial.write(Str);
+void __DebugPrint(char Str[]){
+    Serial.write(Str);
 }
 
-void DebugPrintLn(char Str[]){
-    if(Debug) {
-      Serial.write(Str); 
-      Serial.write("\r\n");
-    }
+void __DebugPrintLn(char Str[]){
+    Serial.write(Str); 
+    Serial.write("\r\n");
 }
 
-void DebugPrint(int Num){
-    if(Debug) Serial.print(Num);
+void __DebugPrint(unsigned char Num){
+    Serial.print(Num);
 }
 
-void DebugPrintLn(int Num){
-    if(Debug) Serial.print(Num);
+void __DebugPrintLn(unsigned char Num){
+    Serial.print(Num);
+    Serial.write("\r\n");
+}
+
+void __DebugPrint(int Num){
+    Serial.print(Num);
+}
+
+void __DebugPrintLn(int Num){
+    Serial.print(Num);
     Serial.write("\r\n");
 
 }

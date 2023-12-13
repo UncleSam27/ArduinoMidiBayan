@@ -17,7 +17,8 @@ class KeyboardS {
   private:
     
   public: //public 
-    unsigned char  ScanMode;           // 0-scan in passive mode (gerkon)    1-scan in active mode (hall)
+    //varibles
+    unsigned char  ScanMode;           // 0-scan in passive mode (gerkon switches)    1-scan in active mode (hall sensor)
     unsigned char  Normal_Pin_State;  // 0-"normal opened contacts"  1-"normal closed contacts"  2-"auto detect"
     unsigned char  KeyInputPinStart;  
     unsigned char  KeyInputPinStop;
@@ -33,6 +34,7 @@ class KeyboardS {
     MidiChanel* MidiChanels[MaxMidiChanels];
     unsigned int InputKeysMask[MaxOutCount];
 
+    //functions
     KeyboardS();
     ~KeyboardS();
     int ScanCodeToKeyCode(unsigned char ScanCode);
@@ -89,8 +91,11 @@ class KeyboardS {
 }; // class KeyboardS
 
 
+
 // Глобальный объект, ну такое... возможно надо переделать
 extern KeyboardS  *MyKeyb;
 
+
+KeyboardS *InitKeyboard(KeyboardS *Keybs);
 
 #endif

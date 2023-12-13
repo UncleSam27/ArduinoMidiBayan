@@ -20,6 +20,22 @@ unsigned char  Enc_Direction = 0; // 0-norm  1-reversed
 
 unsigned char  LCD_rotation = 0;  // 0-norm  1-180rotated
 
+
+// Setup Pin as Input width pool up
+void   InitKeyPullUp(int pin){
+  pinMode(pin, INPUT);
+  digitalWrite(pin, HIGH);
+}
+
+void   InitKeys(){
+  // Buttons PullUp
+  InitKeyPullUp(BTN_RST);
+  InitKeyPullUp(ENC_BTN);
+  InitKeyPullUp(ENC_L);
+  InitKeyPullUp(ENC_R);
+}
+
+
 //FastFix  (переделать потом)
 Encoder Encodr(ENC_L, ENC_R, ENC_BTN);
 

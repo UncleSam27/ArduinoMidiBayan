@@ -67,23 +67,34 @@ void SaveNameValueToSD(File *myFile, char Name[], DataBox *Value){
           myFile->println();          
 }
 
-//Считывает одну строку из указанного файла
+//Считывает одну строку из указанного файла, внимание, функция не проверяет выход за пределы строки! 
 int ReadStringFromSD(File *myFile, char Str[]){
-  String StrBuff;
+    int Counter = 0; 
+    char ch;
+    
+    Str[0]=0; //clear string
+
+    if(!myFile){
+      return -1;
+    }
+
+    //check 
+    if(!myFile->available()){
+      DebugPrintLn("End of file");
+      return -1;
+    }
  
-  if (myFile->available()){
-      StrBuff = myFile->readStringUntil('\n');
-      strcpy (Str, StrBuff.c_str());
-      for(int Counter=0;Str[Counter]!=0 ;Counter++){
-        if ((Str[Counter]=='\n') ||  (Str[Counter]=='\r')){
-          Str[Counter]=0;
-          break;
-        }
-      }
-      return (strlen(Str));  
-  }else{
-    return -1;  
-  }
+    while(myFile->available()){
+        ch = myFile->read();
+        if (ch=='\n') break;
+        if (ch=='\r') continue;
+        Str[Counter]=ch;
+        Counter++;
+        
+    }
+    Str[Counter]=0;
+
+    return (strlen(Str));  
 }
 
 
@@ -100,9 +111,19 @@ char *GetStartCfgStr (char Str[]){
 }
 
 // Функция для разбора конфигурации получает строку с именем и десятичным значением, возвращает десятичное значение
-int GetIntCfgStr (char Str[]){
+int GetIntCfgStr(char *Str){
   int Result;
-  Result = atoi(GetStartCfgStr(Str));
+  char *Num;
+
+  //search start number
+  for(int Counter=0;Str[Counter]!=0 && Counter<MaxFileStringLen;Counter++){
+    if (Str[Counter]==' '){
+      Num=Str+Counter+1;
+      break;
+    }
+  }
+
+  Result = atoi(GetStartCfgStr(Num));
   return Result;
 }
 
@@ -163,8 +184,6 @@ int GetHexCfgStr (char Str[],unsigned char OutStr[]){
   
 }
 
-
-
 //Check String 
 bool ChkCfgStr(char Templ[],char Str[]){
   int Counter;
@@ -185,10 +204,12 @@ bool ChkCfgStr(char Templ[],char Str[]){
 
 
 
+
+
 //#########################################################################################
 
 int LoadConfigFromFlash(char FName[]){
-  char   CharBuff[30];
+  char   CharBuff[MaxFileStringLen];
   char   Mode = 0;
   File myFile;
   MidiChanel* LastChanel;
@@ -200,22 +221,9 @@ int LoadConfigFromFlash(char FName[]){
   // if the file opened okay, read line by line
   if (myFile) {
     DebugPrintLn("File open success, start parsing preset"); 
-
-    /*  
-    /////kill em all! (easy way to kill all with destructor) //Сука в ардуине память реально не освобождается!!!
-    if (MyKeyb != NULL) delete MyKeyb;
-    MyKeyb = NULL;
-    // and create new!
-    MyKeyb = new KeyboardS();
-    
-    if (MyKeyb==NULL){
-       DebugPrintLn("ERROR: cant create object keyboard");
-    }  else {
-       DebugPrintLn("Create object keyboard");      
-    }/**/
-    
+  
     if(MyKeyb == NULL){
-      MyKeyb = new KeyboardS();
+      MyKeyb = InitKeyboard(MyKeyb);
       DebugPrintLn("Create object keyboard");
     } else{
       DebugPrintLn("Kill All objects");
@@ -467,7 +475,7 @@ int LoadConfigFromFlash(char FName[]){
    } 
     return 0; 
   } else {
-      //MsgPrintWait("ERR Write!");
+      DebugPrintLn("Can't open file!");
       return -1;
   }
 }
@@ -634,7 +642,7 @@ int SaveKeybToFlash(char FName[]){
 
 
 int LoadKeybFromFlash(char FName[]){
-  char   CharBuff[40];
+  char   CharBuff[MaxFileStringLen];
   File myFile;
 
   myFile = SD.open(FName, FILE_READ);
@@ -646,37 +654,34 @@ int LoadKeybFromFlash(char FName[]){
       //Analog Input
       if(strcmp(CharBuff,"[keybcfg]")==0){
         while(ReadStringFromSD(&myFile,CharBuff) >0){
-
-            DebugPrint(">>>");
-            DebugPrintLn(CharBuff);
-      
+     
           if(ChkCfgStr("KeyInputPinStart",CharBuff)){
-            MyKeyb->KeyInputPinStart = GetInt8CfgStr(CharBuff);
+            MyKeyb->KeyInputPinStart = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("KeyInputPinStart ");
             DebugPrintLn(MyKeyb->KeyInputPinStart);
           }
           if(ChkCfgStr("KeyInputPinStop",CharBuff)){
-            MyKeyb->KeyInputPinStop = GetInt8CfgStr(CharBuff);
+            MyKeyb->KeyInputPinStop = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("KeyInputPinStop ");
             DebugPrintLn(MyKeyb->KeyInputPinStop);
           }
           if(ChkCfgStr("KeyOutputPinStart",CharBuff)){
-            MyKeyb->KeyOutputPinStart = GetInt8CfgStr(CharBuff);
+            MyKeyb->KeyOutputPinStart = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("KeyOutputPinStart ");
             DebugPrintLn(MyKeyb->KeyOutputPinStart);            
           }
           if(ChkCfgStr("KeyOutputPinStop",CharBuff)){
-            MyKeyb->KeyOutputPinStop = GetInt8CfgStr(CharBuff);
+            MyKeyb->KeyOutputPinStop = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("KeyOutputPinStop ");
             DebugPrintLn(MyKeyb->KeyOutputPinStop);              
           }
           if(ChkCfgStr("Normal_Pin_State",CharBuff)){
-            MyKeyb->Normal_Pin_State = GetInt8CfgStr(CharBuff);
+            MyKeyb->Normal_Pin_State = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("Normal_Pin_State ");
             DebugPrintLn(MyKeyb->Normal_Pin_State);  
           }
           if(ChkCfgStr("ScanCodeNums",CharBuff)){
-            MyKeyb->ScanCodeNums = GetInt8CfgStr(CharBuff);
+            MyKeyb->ScanCodeNums = (unsigned char)GetIntCfgStr(CharBuff);
             DebugPrint("ScanCodeNums ");
             DebugPrintLn(MyKeyb->ScanCodeNums);  
 
@@ -691,7 +696,7 @@ int LoadKeybFromFlash(char FName[]){
             GetHexCfgStr(CharBuff, ColorCaseRGB);
           }
           if(ChkCfgStr("BMP280_Use",CharBuff)){
-            BMP280_Use = GetIntCfgStr(CharBuff);
+            BMP280_Use = (unsigned char) GetIntCfgStr(CharBuff);
           }
           if(ChkCfgStr("BMP280_Sensitivity",CharBuff)){
             BMP280_Sensitivity = GetIntCfgStr(CharBuff);
@@ -720,12 +725,8 @@ int LoadKeybFromFlash(char FName[]){
       if(strcmp(CharBuff,"[scancodes]")==0){
         unsigned int Counter = 1;
         while(ReadStringFromSD(&myFile,CharBuff) >0){
-
-            DebugPrint(">>>");
-            DebugPrintLn(CharBuff);
-            
           if(ChkCfgStr("Key",CharBuff)){
-            MyKeyb->KeyCodes[Counter] = GetInt8CfgStr(CharBuff);
+            MyKeyb->KeyCodes[Counter] = (unsigned char) GetIntCfgStr(CharBuff);
             DebugPrint("Add key num: ");
             DebugPrintLn(MyKeyb->KeyCodes[Counter]);             
             Counter++;

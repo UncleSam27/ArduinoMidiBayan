@@ -6,7 +6,9 @@
 //#define SCREEN_MINI12864_2_0 
 //#define SCREEN_RepRapDiscount 
 
-#define Debug true
+//uncoment for debug ver
+//#define Debug
+
 #define Version "2.4.16 Mini"
 
 //############################## Hardware pin defines ###################################
@@ -94,7 +96,7 @@
 #define CountMIDIChanels         16
 
 #define RecordLen                20  // count of bytes in one word
-
+#define MaxFileStringLen         40
 //############################## Global Varibles ###################################
 
 
