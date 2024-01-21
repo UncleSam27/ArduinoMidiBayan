@@ -4,7 +4,6 @@
 #include <string.h>
 #include "config.h"
 #include "keyboard.h"
-#include "BMP280.h"
 
 //--------------------------------------------------------------------------------------------------------------
 // class Hotkey

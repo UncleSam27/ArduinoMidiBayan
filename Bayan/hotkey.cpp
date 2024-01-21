@@ -2,7 +2,6 @@
 #include <string.h>
 #include "config.h"
 #include "keyboard.h"
-#include "BMP280.h"
 #include "hotkey.h"
 #include "beeper.h"
 #include "debug.h"

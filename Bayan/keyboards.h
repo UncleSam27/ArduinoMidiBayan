@@ -10,6 +10,11 @@
 #include "analog.h"
 #include "midichanel.h"
 
+#ifdef DRAM_MACHINE_USED
+#include "drummachine.h"
+#endif
+
+
 //--------------------------------------------------------------------------------------------------------------
 // KeyboardS
 //--------------------------------------------------------------------------------------------------------------
@@ -33,6 +38,11 @@ class KeyboardS {
     AnalogIn* AnalogInputs[MaxAnalogInputs];    
     MidiChanel* MidiChanels[MaxMidiChanels];
     unsigned int InputKeysMask[MaxOutCount];
+    
+#ifdef DRAM_MACHINE_USED
+    DrumMachine DrumMachin;
+#endif
+
 
     //functions
     KeyboardS();

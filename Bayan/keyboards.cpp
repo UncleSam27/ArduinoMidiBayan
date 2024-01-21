@@ -11,8 +11,11 @@
 #include "analog.h"
 #include "midichanel.h"
 #include "sdcard.h"
-#include "BMP280.h"
 #include "debug.h"
+
+#ifdef BMP280_USED
+#include "BMP280.h"
+#endif
 
 
 KeyboardS *MyKeyb;
@@ -210,10 +213,19 @@ void KeyboardS::Play() {
     }
   }
 
+#ifdef BMP280_USED
   // Если используется цифровой датчик BMP820 - обновляем его данные
   if (BMP280_Use == 1 && Bmp280) {
     Bmp280->Play();
   }
+#endif
+  
+  // Если используется драм машина играем
+#ifdef DRAM_MACHINE_USED
+    DrumMachin.Play();
+#endif
+
+
 
   ScanKeyMatrix(Keys);
   //Play Buttons

@@ -6,6 +6,10 @@
 #include "debug.h"
 #include "lcd.h"
 
+#ifdef BMP280_USED
+#include "BMP280.h"
+#endif
+
 
 // Сохранение в указанный файл пары имя - значение для числа
 void SaveNameValueToSD(File *myFile, char Name[], int Value){
@@ -232,11 +236,13 @@ int LoadConfigFromFlash(char FName[]){
       MyKeyb->DeleteAllMidiChanel();
       MyKeyb->DeleteAllAnalogIn();
     }
-    
+
+#ifdef BMP280_USED    
     if(Bmp280 != NULL){
       Bmp280->ClearExternalSensor();
       DebugPrintLn("Deactivate BMP280 sensor");
     }
+#endif
 
     while (ReadStringFromSD(&myFile,CharBuff) != -1) {
       //Analog Input
@@ -457,6 +463,8 @@ int LoadConfigFromFlash(char FName[]){
    ColorSetup();
    MyKeyb->SetupAllPrograms(GlobalProgramChangeMode);
 
+
+#ifdef BMP280_USED
    // Если используется цифровой датчик давления прикручиваем его к указанному аналоговому входу
    if(BMP280_Use == 1){
     if(Bmp280 == NULL){
@@ -472,7 +480,9 @@ int LoadConfigFromFlash(char FName[]){
       Bmp280->SetExternalSensor(MyKeyb->AnalogInputs[BMP280_Chanel]->SetExternalRawInputVal());
       DebugPrintLn("Activate BMP280 Sensor");
     }
-   } 
+   }
+#endif
+ 
     return 0; 
   } else {
       DebugPrintLn("Can't open file!");
@@ -695,6 +705,8 @@ int LoadKeybFromFlash(char FName[]){
           if(ChkCfgStr("ColorCaseRGB",CharBuff)){
             GetHexCfgStr(CharBuff, ColorCaseRGB);
           }
+          
+#ifdef BMP280_USED
           if(ChkCfgStr("BMP280_Use",CharBuff)){
             BMP280_Use = (unsigned char) GetIntCfgStr(CharBuff);
           }
@@ -710,6 +722,8 @@ int LoadKeybFromFlash(char FName[]){
           if(ChkCfgStr("BMP280_AutoAdjust_Limit",CharBuff)){
             BMP280_AutoAdjust_Limit = GetIntCfgStr(CharBuff);
           }
+#endif
+
           if(ChkCfgStr("Enc_Type",CharBuff)){
             Enc_Type = GetIntCfgStr(CharBuff);
           }

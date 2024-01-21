@@ -1,15 +1,22 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//select one of screen
-//#define SCREEN_MINI12864_2_1 
-//#define SCREEN_MINI12864_2_0 
-#define SCREEN_RepRapDiscount 
+#define Version "2.4.17 Mini"
 
-//uncomment for debug ver
+//select one of screen
+#define SCREEN_MINI12864_2_1 
+//#define SCREEN_MINI12864_2_0 
+//#define SCREEN_RepRapDiscount 
+
+/* uncomment for debug ver */
 //#define Debug
 
-#define Version "2.4.16"
+/* uncomment for compile with dram machine support*/
+#define DRAM_MACHINE_USED
+
+/* uncomment for compile with BMP280 pressure sensor support*/
+//#define BMP280_USED
+
 
 //############################## Hardware pin defines ###################################
 
