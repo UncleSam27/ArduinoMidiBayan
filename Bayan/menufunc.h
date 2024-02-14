@@ -1,6 +1,7 @@
 #ifndef MENUFUNC_H
 #define MENUFUNC_H
 
+
 bool GetMenuSubstr(int Num, char InputStr[], char ResultString[]);
 void MenuPrint(int Choise, char MenuSttring[]);
 int GetButtonState();

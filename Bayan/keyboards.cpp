@@ -6,7 +6,6 @@
 #include "midi.h"
 #include "menu.h"
 #include "strings.h"
-//#include "keyboard.h"
 #include "hotkey.h"
 #include "analog.h"
 #include "midichanel.h"
@@ -36,6 +35,10 @@ KeyboardS::KeyboardS() {
   KeyOutputPinStart = InitKeyOutputPinStart;
   KeyOutputPinStop  = InitKeyOutputPinStop;
   ScanCodeNums      = InitScanCodeNums;
+
+#ifdef DRAM_MACHINE_USED
+  DrumMachin = new(DrumMachine);
+#endif
 
   // Set Input pin 22-37 () for KeyBoard matrix In
   for (int counter = KeyInputPinStart; counter <= KeyInputPinStop; counter++) {
@@ -98,7 +101,9 @@ inline void KeyboardS::Pin2Low(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, LOW);
-  delay(1);
+//  delay(1);
+  delayMicroseconds(200);
+
 }
 
 //----------------------------------------------------------------------
@@ -107,7 +112,8 @@ inline void KeyboardS::Pin2High(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, HIGH);
-  delay(1);
+  //  delay(1);
+  delayMicroseconds(200);
 }
 
 //----------------------------------------------------------------------
@@ -222,7 +228,7 @@ void KeyboardS::Play() {
   
   // Если используется драм машина играем
 #ifdef DRAM_MACHINE_USED
-    DrumMachin.Play();
+    DrumMachin->Play();
 #endif
 
 

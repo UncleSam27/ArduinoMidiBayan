@@ -11,6 +11,64 @@
 
 
 
+//----------------------------------------------------------------------
+void MenuCahngeDrumMachine(DrumMachine DrumMachin){
+  unsigned char СolumnNum=0;
+  unsigned char RowNum=0;
+
+  while(1){
+    u8g.firstPage();
+    do {
+      // Print Header inversed collor
+      u8g.setColorIndex(1);
+      u8g.drawBox(0, 0, LCD_WIDTH, FontHigh + 2);
+      u8g.drawFrame(0, 0, LCD_WIDTH, LCD_HEIGHT);
+  
+      u8g.setColorIndex(0);
+      u8g.setPrintPos(1, (FontHigh + 1));
+      if(RowNum ==0)
+        u8g.print("Exit");
+      else{
+        if(СolumnNum == 0) u8g.print("Select drum");
+        if(СolumnNum == 1) u8g.print("Change Note");
+        if(СolumnNum == 2) u8g.print("Enable");
+        if(СolumnNum > 2) u8g.print("Enable Note");
+      }
+
+      u8g.setColorIndex(1);
+      u8g.drawBox(1, ((FontHigh + 2)*CursorPos) + 1, 4, FontHigh + 2);
+    } while ( u8g.nextPage() );
+
+    // key scan cycle
+    while (1) {
+      MyKeyb->Play();       //Play at Menu
+      Encodr.tick();
+      if (Encodr.isLeft()) {
+        Klick();
+/*        CurrentValue++;
+        if (CurrentValue > MaxValue) {
+          CurrentValue = MinValue;
+        }*/
+        break;
+      }
+
+      if (Encodr.isRight()) {
+        Klick();
+/*        CurrentValue--;
+        if (CurrentValue < MinValue) {
+          CurrentValue = MaxValue;
+        } */
+        break;
+      }
+
+      if (Encodr.isPress()) {
+        Klick();
+/*        return CurrentValue; */
+      }
+    }
+    
+  }
+}
 
 //----------------------------------------------------------------------
 // Get Substring Menu

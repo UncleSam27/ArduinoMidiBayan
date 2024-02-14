@@ -5,7 +5,7 @@
 
 #define NumberOfDrums 8
 #define NumberOfTicks 16
-#define DefaultDrumDelay 1000  //real work evry 1000 cycle 
+#define DefaultBPM 120  //real work evry 1000 cycle 
 
 //--------------------------------------------------------------------------------------------------------------
 // class Drum
@@ -13,11 +13,14 @@
 
 class Drum {
   private:
-    unsigned char  Enabled;
+    bool  Enabled;
     unsigned char  Chanel;
     unsigned char  Note;
     unsigned char  Velocity;  
   public:
+
+    Drum();
+    
     void Enable(bool Enable);
     bool IsEnabled();
 
@@ -38,23 +41,34 @@ class Drum {
 //--------------------------------------------------------------------------------------------------------------
 class DrumMachine {
   private:
-    Drum           Drums[NumberOfDrums];
+    class Drum*    Drums[NumberOfDrums];
     unsigned char  DrumCode[NumberOfTicks]; 
-    unsigned int   DrumDelay;
-    unsigned int   DrumCounter;
-    unsigned int   CurrentTick;
+    unsigned long  CurrentTick;      // текущий тик драм машины
+    
+    unsigned long  DrumDelay;        // задержка в микросекундах между тиками драм машины
+    unsigned long  NextDrumCounter;  // следующий тик драммашины
+
     bool           Enabled;
+    unsigned int   BPM;
 
   public:
     DrumMachine();
-    void EnableMachine(bool Enable);
+    void Enable(bool Enable);
+    bool IsEnabled();
     Drum* GetDrum(unsigned char DrumNumber);
     void SetDrumDelay(unsigned char NewDrumDelay);
     unsigned char GetDrumDelay();
     void SetDrumCode(unsigned char TickNum,unsigned char Code);
     unsigned char GetDrumCode(unsigned char TickNum);
+    bool IsPlayed(unsigned char TickNum, unsigned char DrumNum);
+    void SetPlayed(unsigned char TickNum, unsigned char DrumNum, bool Enabled);
+    unsigned char GetBPM();
+    void SetBPM(unsigned char NewBPM);
     void PlayImmediately();
     void Play();
 };
+
+void SaveDrumMachine(char FileName[], class DrumMachine* DrumMach);
+void LoadDrumMachine(char FileName[], class DrumMachine* DrumMach);
 
 #endif

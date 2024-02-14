@@ -9,9 +9,15 @@
 #include "midichanel.h"
 #include "keybloadsave.h"
 
+#ifdef DRAM_MACHINE_USED
+#include "drummachine.h"
+#endif
+
 void        StartLogo();
 
-
+#ifdef DRAM_MACHINE_USED
+void        MenuCahngeDrumMachine(DrumMachine DrumMachin);
+#endif
 AnalogIn*   MenuGetAnalogInput(AnalogIn* Input);
 MidiController* MenuChangeMidiController(MidiController* Controller, MidiChanel *Chanel);
 void        MenuMidiControllerSetup(MidiChanel *Chanel);

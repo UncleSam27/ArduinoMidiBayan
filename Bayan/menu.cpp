@@ -11,6 +11,8 @@
 #include "debug.h"
 #include "control.h"
 
+
+
 void StartLogo() {
   Klick();
   //Logo
@@ -681,8 +683,8 @@ uint8_t MenuChangeHotkey(Hotkey *Hotk) {
   while (1) {
     // Empty cycle (varible localization)
     do {
-
-      char MenuStr[] = "Hotkey Settings  >Back..>                >For-                 >Key         0   >Modifier..>DELETE!";
+     strcpy( MenuStr, "Hotkey Settings  >Back..>                >For-                 >Key         0   >Modifier..>DELETE!");
+     // char MenuStr[] = "Hotkey Settings  >Back..>                >For-                 >Key         0   >Modifier..>DELETE!";
       //Update Menu String
       SubStrCopy(MenuStr, 25, Hotk->Name);
       if (Hotk->Keyb != NULL) {
@@ -1126,12 +1128,230 @@ void  MenuAnalogIn() {
 }
 
 
+#ifdef DRAM_MACHINE_USED
+//################################### DRUM MACHINE MENU ###################################
+
+//----------------------------------------------------------------------
+// Edit Drum Config
+void MenuCangeDrumMachineNote(class Drum* CurrentDrum, uint8_t  DrumNum){
+  int Choise = 1;
+  while (1) {
+      strcpy_P( MenuStr, (const char*)F("Cange Drum     >Back..>Chanel          >Note                 >Velocity       "));
+      //Update Menu String
+      InsertIntToStr(MenuStr, 13, DrumNum);
+      InsertIntToStr(MenuStr, 35, CurrentDrum->GetChanel());
+      InsertIntToStr(MenuStr, 52, CurrentDrum->GetNote());
+      InsertIntToStr(MenuStr, 74, CurrentDrum->GetVelocity());
+    
+    Choise = Menu(Choise, MenuStr);
+    
+    if (Choise == 1) break;
+    if (Choise == 2) CurrentDrum->SetChanel( MenuGetInt("Chanel",  CurrentDrum->GetChanel(), 0, 15) );
+    if (Choise == 3) CurrentDrum->SetNote( MenuGetInt("Note",  CurrentDrum->GetNote(), 0, 127) );      
+
+    MidiSendNote(CurrentDrum->GetChanel(), CurrentDrum->GetNote(), CurrentDrum->GetVelocity());    
+    delay(400);
+    MidiClearNote(CurrentDrum->GetChanel(), CurrentDrum->GetNote(), 0); 
+  }
+}
+
+
+//----------------------------------------------------------------------
+// Edit Drum Machine Config
+void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
+
+  enum ModeType{
+      ModeSelectDrum,
+      ModeChangeDrum
+  } Mode = ModeSelectDrum;
+  
+  uint8_t ColumnNum = 0; //столбец
+  int8_t RowNum = -1;    //строка
+  Drum *CurrentDrum;
+  
+  while(1){
+    u8g.firstPage();
+    do {
+      // Print Header inversed collor
+      u8g.setColorIndex(1);
+      u8g.drawBox(0, 0, LCD_WIDTH, FontHigh + 2);
+      u8g.drawFrame(0, 0, LCD_WIDTH, LCD_HEIGHT);
+  
+      u8g.setColorIndex(0);
+      u8g.setPrintPos(1, (FontHigh + 1));
+      if(RowNum == -1)
+        u8g.print("Exit");
+      else{
+        if(ColumnNum == 0 && Mode == ModeSelectDrum) u8g.print("Select drum");
+        if(ColumnNum == 0 && Mode == ModeChangeDrum) u8g.print("Change drum");
+        if(ColumnNum == 1) u8g.print("Change Note");
+        if(ColumnNum == 2) u8g.print("Enable Drum");
+        if(ColumnNum > 2) u8g.print("Enable Note");
+      }
+     
+      u8g.setColorIndex(1);
+
+      for(int RowCount=0; RowCount< NumberOfDrums; RowCount++){
+        CurrentDrum = DrumMachin->GetDrum(RowCount);
+        
+        // draw change drum box   
+        u8g.drawFrame(8, RowCount*6 + 15, 10, 5);
+        
+        // draw enable drum box
+        u8g.drawFrame(23, RowCount*6 + 15, 5, 5);
+        if(CurrentDrum->IsEnabled()) 
+          u8g.drawPixel(25, RowCount*6 + 17);
+        // draw drum note boxes
+        for(int ColumnCount=0; ColumnCount< NumberOfTicks; ColumnCount++){
+          u8g.drawFrame(ColumnCount*6 + 31, RowCount*6 + 15, 5, 5);
+          if( DrumMachin->IsPlayed(ColumnCount, RowCount))
+            u8g.drawPixel(ColumnCount*6 + 33, RowCount*6 + 17);
+        }
+      }
+      
+      if(RowNum >=0 && ColumnNum == 0)    // cursor  
+        u8g.drawBox(1, RowNum*6 + 15, 5, 5);
+      if(ColumnNum == 1)      
+        u8g.drawFrame(9, RowNum*6 + 16, 8, 3);
+      if(ColumnNum == 2)      
+        u8g.drawFrame(24, RowNum*6 + 16, 3, 3);
+      if(ColumnNum > 2)      
+        u8g.drawFrame((ColumnNum-3)*6 + 32, RowNum*6 + 16, 3, 3);
+        
+    } while ( u8g.nextPage() );
+
+    // key scan cycle
+    while (1) {
+      MyKeyb->Play();       //Play at Menu
+      Encodr.tick();
+      if (Encodr.isLeft()) {
+        Klick();
+        if(Mode == ModeSelectDrum){
+            RowNum++;
+            if(RowNum > 7) RowNum = -1;
+        }
+        if(Mode == ModeChangeDrum){
+            if(ColumnNum == 18) 
+              ColumnNum = 0;
+            else
+              ColumnNum++;
+        }
+        break;
+      }
+
+      if (Encodr.isRight()) {
+        Klick();
+        if(Mode == ModeSelectDrum){
+            RowNum--;
+            if(RowNum < -1) RowNum = 7;
+        }
+        if(Mode == ModeChangeDrum){
+            if(ColumnNum == 0) 
+              ColumnNum = 18;
+            else
+              ColumnNum--;
+        }
+        
+        break;
+      }
+
+      if (Encodr.isPress()) {
+        Klick();
+        if(Mode == ModeSelectDrum){
+          if(RowNum == -1)
+            return;
+          else 
+            Mode = ModeChangeDrum;
+        }
+        else if(Mode == ModeChangeDrum){
+          if(ColumnNum == 0){                 // exit edit drum
+            Mode = ModeSelectDrum;
+          }else if(ColumnNum == 1){           // edit note
+            CurrentDrum = DrumMachin->GetDrum(RowNum);
+            MenuCangeDrumMachineNote(CurrentDrum,RowNum);
+          }else if(ColumnNum == 2){           // enable drum
+            CurrentDrum = DrumMachin->GetDrum(RowNum);
+            if ( CurrentDrum->IsEnabled() )
+              CurrentDrum->Enable(false);
+            else
+              CurrentDrum->Enable(true);
+          }else if(ColumnNum >2){
+            if( DrumMachin->IsPlayed(ColumnNum-3, RowNum) )
+              DrumMachin->SetPlayed(ColumnNum-3, RowNum, false);
+            else
+              DrumMachin->SetPlayed(ColumnNum-3, RowNum, true);
+           }
+          break;
+        }
+      }
+    }
+  }
+}
+
+
+//----------------------------------------------------------------------
+// Drum Machine Menu
+void MenuDrumMachine(){
+  int Choise = 1;
+  while (1) {
+    //Copy Init String to Menu String
+    strcpy( MenuStr, "Drum machine>Back..>Enable        >BPM           >Configure>Load>Save");
+    InsertIntToStr(MenuStr, 46, MyKeyb->DrumMachin->GetBPM());
+    if(MyKeyb->DrumMachin->IsEnabled())
+      SubStrCopy(MenuStr, 31, "Yes");
+    else
+      SubStrCopy(MenuStr, 31, "No");
+
+    
+    Choise = Menu(Choise, MenuStr);
+    
+    if (Choise == 1) {
+      break;
+    }
+
+    if (Choise == 2) {
+      if(MyKeyb->DrumMachin->IsEnabled())
+        MyKeyb->DrumMachin->Enable(false);
+      else
+        MyKeyb->DrumMachin->Enable(true);
+    }
+
+    if (Choise == 3) {
+       MyKeyb->DrumMachin->SetBPM( MenuGetInt("BPM",  MyKeyb->DrumMachin->GetBPM(), 0, 255) ); 
+    }
+
+    
+    if (Choise == 4) {
+      MenuCahngeDrumMachine( MyKeyb->DrumMachin );
+    }
+
+    if (Choise == 5) {
+      SaveDrumMachine("drum.cfg", MyKeyb->DrumMachin);
+      MsgPrint("Saved...");
+      delay(500);
+    }
+
+    if (Choise == 6) {
+      LoadDrumMachine("drum.cfg", MyKeyb->DrumMachin);
+      MsgPrint("Loaded...");
+      delay(500);
+    }
+  }
+}
+
+#endif  // DRAM_MACHINE_USED
+
 //----------------------------------------------------------------------
 // Main Menu
 void MenuMain() {
   int Choise = 1;
   while (1) {
+
+#ifdef DRAM_MACHINE_USED
+    Choise = Menu(Choise, "Main Menu>Presets>Midi Chanels>Keyboards>Hot keys>Analog In>Drum Machine>Info>Settings>Tests");
+#else
     Choise = Menu(Choise, "Main Menu>Presets>Midi Chanels>Keyboards>Hot keys>Analog In>Info>Settings>Tests");
+#endif
 
     if (Choise == 1) {
       MenuPresets();
@@ -1153,15 +1373,21 @@ void MenuMain() {
       MenuAnalogIn();
     }
 
+#ifdef DRAM_MACHINE_USED
     if (Choise == 6) {
+      MenuDrumMachine();
+    }
+#endif
+
+    if (Choise == 7) {
       MenuInfoNow();
     }
 
-    if (Choise == 7) {
+    if (Choise == 8) {
       MenuSettings();
     }
 
-    if (Choise == 8) {
+    if (Choise == 9) {
       MenuTest();
     }
   }

@@ -40,7 +40,7 @@ class KeyboardS {
     unsigned int InputKeysMask[MaxOutCount];
     
 #ifdef DRAM_MACHINE_USED
-    DrumMachine DrumMachin;
+    DrumMachine* DrumMachin;
 #endif
 
 
