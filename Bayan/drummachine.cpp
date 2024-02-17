@@ -70,26 +70,25 @@ DrumMachine::DrumMachine(){
   BPM = DefaultBPM;
   DrumDelay = (1000000/DefaultBPM)<<4;
   NextDrumCounter = 0;
-
+  SynchroStart = false;
 
   for(unsigned char Counter=0; Counter<NumberOfTicks; Counter++){
     DrumCode[Counter] = 0;
   }
 
+
+/*
   // test drum code
-  for(unsigned char Counter=0; Counter<NumberOfDrums; Counter++){
-    Drums[Counter]= new(Drum);
-    if(Counter<4) Drums[Counter]->Enable(true);
-  }
 
+  Drums[0].Enable(true);
+  Drums[0].SetChanel(9);
+  Drums[0].SetNote(45);
+  Drums[0].SetVelocity(125);
 
-  Drums[0]->SetChanel(9);
-  Drums[0]->SetNote(45);
-  Drums[0]->SetVelocity(125);
-
-  Drums[1]->SetChanel(9);
-  Drums[1]->SetNote(53);
-  Drums[1]->SetVelocity(125);
+  Drums[1].Enable(true);
+  Drums[1].SetChanel(9);
+  Drums[1].SetNote(53);
+  Drums[1].SetVelocity(125);
 
     
   SetPlayed(0, 0, true);
@@ -105,17 +104,7 @@ DrumMachine::DrumMachine(){
   SetPlayed(10, 1, true);
   SetPlayed(13, 1, true);
   SetPlayed(14, 1, true);
-  
-  
- /* for(unsigned char Counter=0; Counter<NumberOfDrums; Counter++){
-    Drums[Counter].Enable(false);
-    Drums[Counter].SetChanel(0);
-    Drums[Counter].SetNote(0);
-    Drums[Counter].SetVelocity(0);
-  }
-  */
-
-
+*/
 }
 
 //----------------------------------------------------------------------
@@ -123,7 +112,7 @@ void DrumMachine::Enable(bool Enable){
   Enabled = Enable;
   if(!Enabled){ //disable all notes
     for(unsigned char Counter=0; Counter<NumberOfDrums; Counter++){
-      MidiClearNote( Drums[Counter]->GetChanel(), Drums[Counter]->GetNote(), 0 );
+      MidiClearNote( Drums[Counter].GetChanel(), Drums[Counter].GetNote(), 0 );
     }
   }
 }
@@ -137,7 +126,26 @@ bool DrumMachine::IsEnabled(){
 //----------------------------------------------------------------------
 Drum* DrumMachine::GetDrum(unsigned char DrumNumber){
   if(DrumNumber>=0 && DrumNumber < NumberOfDrums)
-    return ( Drums[DrumNumber] );
+    return ( &Drums[DrumNumber] );
+}
+
+//----------------------------------------------------------------------
+void DrumMachine::SetSynchroStart(bool NewSynchroStart){
+  SynchroStart = NewSynchroStart;
+}
+
+//----------------------------------------------------------------------
+bool DrumMachine::GetSynchroStart(){
+  return SynchroStart;
+}
+
+//----------------------------------------------------------------------
+void DrumMachine::GoSynchroStart(){
+  if(SynchroStart){
+    CurrentTick = NumberOfTicks-1;
+    NextDrumCounter = micros();
+    Enabled = true;
+  }
 }
 
 //----------------------------------------------------------------------
@@ -171,7 +179,7 @@ void DrumMachine::SetPlayed(unsigned char TickNum, unsigned char DrumNum, bool E
 
 
 unsigned char DrumMachine::GetBPM(){
-return BPM;
+  return BPM;
 }
 
 void DrumMachine::SetBPM(unsigned char NewBPM){
@@ -185,8 +193,8 @@ void DrumMachine::PlayImmediately(){
   // Turn off all notes sounding in the previous measure
   Tick = DrumCode[CurrentTick];
   for(unsigned char DrumCounter = 0; DrumCounter < NumberOfDrums; DrumCounter++){ 
-    if((Tick & 1) && Drums[DrumCounter]->IsEnabled() ){
-      MidiClearNote(Drums[DrumCounter]->GetChanel(), Drums[DrumCounter]->GetNote(), 0);
+    if((Tick & 1) && Drums[DrumCounter].IsEnabled() ){
+      MidiClearNote(Drums[DrumCounter].GetChanel(), Drums[DrumCounter].GetNote(), 0);
     }
     Tick >>= 1;
   }
@@ -198,8 +206,8 @@ void DrumMachine::PlayImmediately(){
   // Turn on all sounding in this tick notes
   Tick = DrumCode[CurrentTick];
   for(unsigned char DrumCounter = 0; DrumCounter < NumberOfDrums; DrumCounter++){ 
-    if((Tick & 1) && Drums[DrumCounter]->IsEnabled() ){
-      MidiSendNote(Drums[DrumCounter]->GetChanel(), Drums[DrumCounter]->GetNote(), Drums[DrumCounter]->GetVelocity());
+    if((Tick & 1) && Drums[DrumCounter].IsEnabled() ){
+      MidiSendNote(Drums[DrumCounter].GetChanel(), Drums[DrumCounter].GetNote(), Drums[DrumCounter].GetVelocity());
     }
     Tick >>= 1;
   }    
@@ -220,18 +228,32 @@ void DrumMachine::Play(){
 }
 
 
-void SaveDrumMachine(char FileName[], class DrumMachine* DrumMach){
+char SaveDrumMachine(char FileName[], class DrumMachine* DrumMach){
   File file;
   SD.remove(FileName);//remove if exist
   file = SD.open(FileName, FILE_WRITE);
-  file.write((uint8_t*)DrumMach, sizeof(DrumMachine) );
+  if(!file){
+    return -1;
+  }
+  if(file.write((uint8_t*)DrumMach, sizeof(DrumMachine) ) ){
+    file.close();
+    return 0;    
+  }
   file.close();
+  return -1;
 }
 
 
-void LoadDrumMachine(char FileName[], class DrumMachine* DrumMach){
+char LoadDrumMachine(char FileName[], class DrumMachine* DrumMach){
   File file;
   file = SD.open(FileName, FILE_READ);
-  file.read((uint8_t*)DrumMach, sizeof(DrumMachine) );
+  if(!file){
+    return -1;
+  }
+  if(file.read((uint8_t*)DrumMach, sizeof(DrumMachine) ) ){
+    file.close();
+    return 0;
+  }
   file.close();
+  return -1;
 }

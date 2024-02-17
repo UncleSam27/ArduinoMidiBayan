@@ -510,13 +510,22 @@ int MenuChangeKeyboard(Keyboard *Keybrd) {
 
     //empty cycle for local MenuStr
     do {
+
+#ifdef DRAM_MACHINE_USED 
+      strcpy(MenuStr, "Keyboard Settings>Back..>                >Start Key   0   >Last Key    0   >Chanel      0   >Base note   0   >Mode        0   >Syn.Start   0   >DELETE!");
+#else
       strcpy(MenuStr, "Keyboard Settings>Back..>                >Start Key   0   >Last Key    0   >Chanel      0   >Base note   0   >Mode        0   >DELETE!");
+#endif  //DRAM_MACHINE_USED 
+    
       SubStrCopy(MenuStr, 25, Keybrd->Name);
       InsertIntToStr(MenuStr, 54, Keybrd->KeyBegin);
       InsertIntToStr(MenuStr, 71, Keybrd->KeyEnd);
       InsertIntToStr(MenuStr, 88, Keybrd->Chanel->Chanel);
       InsertIntToStr(MenuStr, 105, Keybrd->MidiBaseNote);
       InsertIntToStr(MenuStr, 122, Keybrd->Increment);
+#ifdef DRAM_MACHINE_USED
+      InsertIntToStr(MenuStr, 139, Keybrd->SynchroStart);
+#endif  //DRAM_MACHINE_USED
       Choise = Menu(Choise, MenuStr);
     } while (0);
 
@@ -543,14 +552,22 @@ int MenuChangeKeyboard(Keyboard *Keybrd) {
     }
     if (Choise == 7) {
       Keybrd->Increment = (Menu(Keybrd->Increment + 1, "Mode>0 Single Note>1 Normal>2 Chords Normal>3 Chords single")) - 1;
-      //Keybrd->Increment = MenuGetInt("Increment Note", Keybrd->Increment, 0, 3);
     }
+    
+#ifdef DRAM_MACHINE_USED
     if (Choise == 8) {
-      if (MyKeyb->DeleteKeyboard(Keybrd) == 0) {
+      Keybrd->SynchroStart = (Menu(Keybrd->SynchroStart + 1, "SynchroStart>Off>On")) - 1;
+    }
+    if (Choise == 9)
+#else
+    if (Choise == 8)
+#endif //DRAM_MACHINE_USED
+    {
+      if (MyKeyb->DeleteKeyboard(Keybrd) == 0)
         MsgPrint("Ready!!!");
-      } else {
+      else
         MsgPrint("Cant delete!");
-      }
+      
       delay(1000);
       return 1;
     }
@@ -595,7 +612,7 @@ void MenuKeyboard() {
       } else {
         Keyboard *Keybrd;
 
-        Keybrd = MyKeyb->AddNewKeyboard("Keyboard", 1, 1, MyKeyb->MidiChanels[0], 36, 1); //Name, BeginKey, EndKey, Chan, BaseNote, Increment
+        Keybrd = MyKeyb->AddNewKeyboard("Keyboard", 1, 1, MyKeyb->MidiChanels[0], 36, 1, 0); //Name, BeginKey, EndKey, Chan, BaseNote, Increment
         if (Keybrd != NULL) {
           MsgPrint("Ready!!!");
           delay(1000);
@@ -738,10 +755,14 @@ uint8_t MenuChangeHotkey(Hotkey *Hotk) {
 // Create Hotkey Menu
 void MenuCreateHotkey() {
   Hotkey *Hotk;
-  strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset" );
+#ifdef DRAM_MACHINE_USED
+  strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset>DrumMachine");
+#else
+  strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset");
+#endif //DRAM_MACHINE_USED
   int Choise = Menu(1, MenuStr);
 
-  unsigned char Modifier[2] = {1, 0};
+  unsigned char Modifier[2] = {1, 0}; //Modifier is string but!!!
   if (Choise == 1) {
     Hotk = MyKeyb->AddNewHotkey("Mute",       NULL,                                     MenuGetKey("Select Key"), Modifier, 1);
   }
@@ -769,10 +790,17 @@ void MenuCreateHotkey() {
   else if (Choise == 9) {
     Hotk = MyKeyb->AddNewHotkey("LoadPreset", NULL, MenuGetKey("Select Key"), Modifier, 9);
   }
-  /*else if (Choise == 10) {
+  
+#ifdef DRAM_MACHINE_USED  
+  else if (Choise == 10) {
+    Hotk = MyKeyb->AddNewHotkey("DrumMachine",  NULL, MenuGetKey("Select Key"), Modifier, 12);
+  }
+#endif //DRAM_MACHINE_USED
+ 
+  /*else if (Choise == 11) {
     Hotk = MyKeyb->AddNewHotkey("SelPreset",  NULL, MenuGetKey("Select Key"), Modifier, 10);
     }
-    else if (Choise == 11) {
+    else if (Choise == 12) {
     Hotk = MyKeyb->AddNewHotkey("FreezeIN",   NULL, MenuGetKey("Select Key"), Modifier, 11);
     } */
 
@@ -1032,6 +1060,8 @@ void MenuPresets() {
       unsigned char Key = MenuGetKey("Preset key") - 1;
       itoa(Key, fname, 10);
       strcat(fname, ".cfg");
+      MsgPrint(fname);
+            
       if (SD.exists(fname)) {
         MsgPrintInt(Key);
         EEPROM.write(AddressStartFile, Key);
@@ -1044,12 +1074,12 @@ void MenuPresets() {
     if (Choise == 3) {
       //get keynum
       unsigned char Key = MenuGetKey("Preset key") - 1;
-      MsgPrintInt(Key);
 
       //create file name from key number like 2.cfg
       itoa(Key, fname, 10);
       strcat(fname, ".cfg");
-
+      MsgPrint(fname);
+      
       if (SaveConfigToFlash(fname) == 0) {
         MsgPrint("Saved!");
         delay(1000);
@@ -1063,9 +1093,9 @@ void MenuPresets() {
       unsigned char Key  = MenuGetInt("Load preset",  EEPROM.read(AddressStartFile), 0, 127);
       itoa(Key, fname, 10);
       strcat(fname, ".cfg");
+      MsgPrint(fname);
+            
       if (SD.exists(fname)) {
-
-        //MsgPrintInt(Key);
         EEPROM.write(AddressStartFile, Key);
         LoadConfigFromFlashEEPROM();
       } else {
@@ -1076,12 +1106,12 @@ void MenuPresets() {
     if (Choise == 5) {
       //get keynum
       unsigned char Key = MenuGetInt("Save preset",  EEPROM.read(AddressStartFile), 0, 127);
-      MsgPrintInt(Key);
 
       //create file name from key number like 2.cfg
       itoa(Key, fname, 10);
       strcat(fname, ".cfg");
-
+      MsgPrint(fname);
+      
       if (SaveConfigToFlash(fname) == 0) {
         MsgPrint("Saved!");
         delay(1000);
@@ -1293,15 +1323,21 @@ void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
 // Drum Machine Menu
 void MenuDrumMachine(){
   int Choise = 1;
+  char fname[20];
+  
   while (1) {
     //Copy Init String to Menu String
-    strcpy( MenuStr, "Drum machine>Back..>Enable        >BPM           >Configure>Load>Save");
+    strcpy( MenuStr, "Drum machine>Back..>Enable        >BPM           >Configure>Sync.Start    >Load>Save");
     InsertIntToStr(MenuStr, 46, MyKeyb->DrumMachin->GetBPM());
     if(MyKeyb->DrumMachin->IsEnabled())
       SubStrCopy(MenuStr, 31, "Yes");
     else
       SubStrCopy(MenuStr, 31, "No");
 
+    if(MyKeyb->DrumMachin->GetSynchroStart())
+      SubStrCopy(MenuStr, 71, "Yes");
+    else
+      SubStrCopy(MenuStr, 71, "No");
     
     Choise = Menu(Choise, MenuStr);
     
@@ -1326,15 +1362,42 @@ void MenuDrumMachine(){
     }
 
     if (Choise == 5) {
-      SaveDrumMachine("drum.cfg", MyKeyb->DrumMachin);
-      MsgPrint("Saved...");
-      delay(500);
+      if(MyKeyb->DrumMachin->GetSynchroStart())
+        MyKeyb->DrumMachin->SetSynchroStart(false);
+      else
+        MyKeyb->DrumMachin->SetSynchroStart(true);
     }
 
     if (Choise == 6) {
-      LoadDrumMachine("drum.cfg", MyKeyb->DrumMachin);
-      MsgPrint("Loaded...");
-      delay(500);
+      unsigned char Key  = MenuGetInt("Load drum",  EEPROM.read(AddressStartDrumFile), 0, 127);
+      itoa(Key, fname, 10);
+      strcat(fname, ".drm");
+      MsgPrint(fname);
+      
+      if (SD.exists(fname)) {
+        EEPROM.write(AddressStartDrumFile, Key);
+        LoadDrumMachine(fname, MyKeyb->DrumMachin);
+      } else {
+        MsgPrint("No such CFG");
+      }
+    }
+
+    if (Choise == 7) {
+      //get keynum
+      unsigned char Key = MenuGetInt("Save drum",  EEPROM.read(AddressStartDrumFile), 0, 127);
+
+      //create file name from key number like 2.drm
+      itoa(Key, fname, 10);
+      strcat(fname, ".drm");
+      MsgPrint(fname);
+      
+      if (SaveDrumMachine(fname, MyKeyb->DrumMachin) == 0) {
+        MsgPrint("Saved!");
+        delay(1000);
+      } else {
+        MsgPrint("Write Error!");
+        delay(2000);
+      }
     }
   }
 }
@@ -1377,18 +1440,26 @@ void MenuMain() {
     if (Choise == 6) {
       MenuDrumMachine();
     }
-#endif
-
     if (Choise == 7) {
       MenuInfoNow();
     }
-
     if (Choise == 8) {
       MenuSettings();
     }
-
     if (Choise == 9) {
       MenuTest();
     }
+#else
+    if (Choise == 6) {
+      MenuInfoNow();
+    }
+    if (Choise == 7) {
+      MenuSettings();
+    }
+    if (Choise == 8) {
+      MenuTest();
+    }
+#endif //DRAM_MACHINE_USED
+    
   }
 }

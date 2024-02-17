@@ -35,6 +35,14 @@ class Hotkey {
     void HKLoadPreset();
     void HKLoadRandomPreset();
     void HKFreezeAnalogIn();
+
+    void HKAllToneUp();
+    void HKAllToneDown();
+
+#ifdef DRAM_MACHINE_USED
+    void HKDrumMachineStartStop();
+#endif // DRAM_MACHINE_USED
+    
     void ActionWork();
     void PlayKeys(unsigned char PushedKeys[]);
 };

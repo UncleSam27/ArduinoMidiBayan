@@ -356,11 +356,11 @@ void KeyboardS::SetupAllPrograms(unsigned char ProgramChangeMode) {
 //##################### KEYBOARDS ######################################
 //----------------------------------------------------------------------
 // Add New Virtual Keyboard
-Keyboard* KeyboardS::AddNewKeyboard(char Name[], unsigned char FierstKey, unsigned char LastKey, MidiChanel* Chanel, unsigned char MidiBaseNote, unsigned char  Increment ) {
+Keyboard* KeyboardS::AddNewKeyboard(char Name[], unsigned char FierstKey, unsigned char LastKey, MidiChanel* Chanel, unsigned char MidiBaseNote, unsigned char  Increment, unsigned char  SynchroStart ) {
   //Search Fierst Empty Slot
   for (int Counter = 0; Counter < MaxKeyboards; Counter++) {
     if (Keyboards[Counter] == NULL) {  // If founded empty slot - add new keyboard
-      Keyboards[Counter] = new Keyboard(Name, FierstKey, LastKey, Chanel, MidiBaseNote, Increment);
+      Keyboards[Counter] = new Keyboard(Name, FierstKey, LastKey, Chanel, MidiBaseNote, Increment, SynchroStart);
       if (Keyboards[Counter] == NULL)  DebugPrintLn("Cant create new Keyboard!");
       return Keyboards[Counter];
     }

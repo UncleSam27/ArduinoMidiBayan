@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define Version "2.4.17 Mini"
+#define Version "2.4.17 TEST"
 
 //select one of screen
 #define SCREEN_MINI12864_2_1 
@@ -78,6 +78,7 @@
 #define AddressMIDIOut           3998     
 #define AddressProgramChangeMode 3997
 #define AddressStartFile         3996
+#define AddressStartDrumFile     3995
 #define AddressBMP280Norm        3990
 #define AddressInputKeysMask     3980
 

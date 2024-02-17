@@ -2,10 +2,12 @@
 #include <string.h>
 #include "config.h"
 #include "keyboard.h"
+#include "keyboards.h"
 #include "hotkey.h"
 #include "beeper.h"
 #include "debug.h"
 #include <EEPROM.h>
+
 
 //--------------------------------------------------------------------------------------------------------------
 // class Hotkey
@@ -105,12 +107,9 @@ void Hotkey::HKSendMIDI() {
 //----------------------------------------------------------------------
 // Keyboard Load Preset
 void Hotkey::HKLoadPreset(){
-    //EEPROM.write(AddressQuickBoot, 1); //quick boot next time
     DebugPrint("Hot key LoadPreset\r\n");      
     EEPROM.write(AddressStartFile, Modifier[0]);
     NeedLoad = 1;
-    //ResetFunc();
-    /**/
 }
 
 //----------------------------------------------------------------------
@@ -118,14 +117,34 @@ void Hotkey::HKLoadPreset(){
 void Hotkey::HKLoadRandomPreset(){
     EEPROM.write(AddressStartFile, Modifier[0]);
     NeedLoad = 1;
-    //ResetFunc();
 }
 
 //----------------------------------------------------------------------
 //
 void Hotkey::HKFreezeAnalogIn(){
-  //MyKeyb->AnalogInputs[Modifier[0]]->Freeze = !MyKeyb->AnalogInputs[Modifier[0]]->Freeze;
+    MyKeyb->AnalogInputs[Modifier[0]]->Freeze = !MyKeyb->AnalogInputs[Modifier[0]]->Freeze;
 }
+
+//----------------------------------------------------------------------
+void Hotkey::HKAllToneUp(){
+  
+}
+
+//----------------------------------------------------------------------
+void Hotkey::HKAllToneDown(){
+
+}
+
+#ifdef DRAM_MACHINE_USED
+//----------------------------------------------------------------------
+void Hotkey::HKDrumMachineStartStop(){
+      if(MyKeyb->DrumMachin->IsEnabled())
+        MyKeyb->DrumMachin->Enable(false);
+      else
+        MyKeyb->DrumMachin->Enable(true);
+}
+#endif // DRAM_MACHINE_USED
+
 
 //----------------------------------------------------------------------
 //
@@ -164,6 +183,11 @@ void Hotkey::ActionWork() {
      HKFreezeAnalogIn();
   }
   
+#ifdef DRAM_MACHINE_USED  
+  else if (Action == 12) {
+     HKDrumMachineStartStop();
+  }
+#endif // DRAM_MACHINE_USED
 }
 
 //----------------------------------------------------------------------

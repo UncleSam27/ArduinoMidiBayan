@@ -1,11 +1,12 @@
 #include "keyboard.h"
 #include "config.h"
 #include "midichanel.h"
+#include "keyboards.h"
 
 //--------------------------------------------------------------------------------------------------------------
 // class Keyboard
 //--------------------------------------------------------------------------------------------------------------
-Keyboard::Keyboard(char initName[], unsigned char initKeyBegin, unsigned char initKeyEnd, MidiChanel * initMidiChanel, unsigned char initMidiBaseNote, unsigned char  initIncrement) {
+Keyboard::Keyboard(char initName[], unsigned char initKeyBegin, unsigned char initKeyEnd, MidiChanel * initMidiChanel, unsigned char initMidiBaseNote, unsigned char  initIncrement, unsigned char  initSynchroStart) {
     //Init Name
     int Counter;
     for (Counter = 0; (initName[Counter] != 0) && (Counter < MaxNameLen); Counter++) {
@@ -19,7 +20,7 @@ Keyboard::Keyboard(char initName[], unsigned char initKeyBegin, unsigned char in
     MidiBaseNote = initMidiBaseNote;
     Chanel = initMidiChanel;
     Increment = initIncrement;
-
+    SynchroStart = initSynchroStart; 
 
     for (int counter = 0; counter < MaxKeysOneTime + 1; counter++) {
       SendedKeys[counter] = 0;
@@ -114,6 +115,14 @@ void Keyboard::PlayButtons(unsigned char PushedKeys[]) { //a function
         if ( AddKeyToSendedKeys(PushedKeys[counter]) ) {                            // if add to Sended Keys succsessfull
           unsigned char  Note = GetNoteFromKey( PushedKeys[counter] );
           Chanel->SendNote(Note);                                                   // Send Note
+
+#ifdef DRAM_MACHINE_USED
+          if(SynchroStart == 1)
+            if(MyKeyb->DrumMachin->GetSynchroStart() == true)
+              if(!MyKeyb->DrumMachin->IsEnabled())
+                MyKeyb->DrumMachin->GoSynchroStart();
+#endif
+
         }
       }
     }

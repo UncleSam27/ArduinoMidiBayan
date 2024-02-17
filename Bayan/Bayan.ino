@@ -91,10 +91,11 @@ void setup() {
     ColorSetup();  //Final color setup
   }else{     // if Reset is pushed load default settings
     MsgPrintWait("Set defaults!");
-    EEPROM.write(AddressStartFile, 0);          //Use "0.cfg" next time
+    EEPROM.write(AddressStartFile, 0);           //Use "0.cfg" next time
     EEPROM.write(AddressBeepOn, 1);              //Beep ON
     EEPROM.write(AddressMIDIOut, 3);             //USB and Midi out
     EEPROM.write(AddressProgramChangeMode, 2);   //New Style (MSB+LSB+Prog)
+    EEPROM.write(AddressStartDrumFile, 0);       //Use "0.drm" next time
     StartWithDefaultCfg();
 
   }

@@ -75,7 +75,8 @@ class KeyboardS {
                             , unsigned char LastKey
                             , MidiChanel* Chanel
                             , unsigned char MidiBaseNote
-                            , unsigned char  Increment 
+                            , unsigned char Increment 
+                            , unsigned char SynchroStart
                 );
     int DeleteKeyboard(Keyboard* Keyb);
     void DeleteAllKeyboard();
@@ -94,7 +95,7 @@ class KeyboardS {
     void DeleteAllAnalogIn();
     unsigned int GetAnalogInCount();
     unsigned int GetAnalogInIndex(AnalogIn* Input);
-    unsigned int GetAnalogInByInput(uint8_t Input);
+    unsigned int GetAnalogInByInput(unsigned char Input);
     unsigned int GetAnalogInByValAddr(unsigned char * Input);
     int GetBoxMenuValue(DataBox * Value);
     

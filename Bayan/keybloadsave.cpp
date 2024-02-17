@@ -364,6 +364,7 @@ int LoadConfigFromFlash(char FName[]){
         unsigned char EndKey=1;
         unsigned char BaseNote=1;
         unsigned char Increment=1;
+        unsigned char SynchroStart=0;
        
         while(ReadStringFromSD(&myFile,CharBuff) >0){
 
@@ -388,9 +389,14 @@ int LoadConfigFromFlash(char FName[]){
           if(ChkCfgStr("Increment",CharBuff)){
             Increment = GetIntCfgStr(CharBuff);
           }
+          if(ChkCfgStr("SynchroStart",CharBuff)){
+            SynchroStart = GetIntCfgStr(CharBuff);
+          }
+
+          
        }
        if(Chan!=NULL){
-         MyKeyb->AddNewKeyboard(Name, BeginKey, EndKey, Chan, BaseNote, Increment);
+         MyKeyb->AddNewKeyboard(Name, BeginKey, EndKey, Chan, BaseNote, Increment, SynchroStart);
        }
       }
       
@@ -571,6 +577,9 @@ int SaveConfigToFlash(char FName[]){
           SaveNameValueToSD(&myFile,"EndKey",MyKeyb->Keyboards[Counter]->KeyEnd);
           SaveNameValueToSD(&myFile,"BaseNote",MyKeyb->Keyboards[Counter]->MidiBaseNote);
           SaveNameValueToSD(&myFile,"Increment",MyKeyb->Keyboards[Counter]->Increment);
+#ifdef DRAM_MACHINE_USED
+          SaveNameValueToSD(&myFile,"SynchroStart",MyKeyb->Keyboards[Counter]->SynchroStart);
+#endif //DRAM_MACHINE_USED
           myFile.println();
         }
       }
@@ -785,9 +794,9 @@ int StartWithDefaultCfg(){
   MyKeyb->MidiChanels[0]->AddNewController(&MyKeyb->AnalogInputs[0]->Value, 1,33);
   
   //AddNewKeyboard(char Name[], unsigned char FierstKey, unsigned char LastKey, unsigned char MidiChanel, unsigned char MidiBaseNote, unsigned char  MidiVelocity, unsigned char  Increment )
-  MyKeyb->AddNewKeyboard("Right",       1, 52, MyKeyb->MidiChanels[0], 46, 1);
-  MyKeyb->AddNewKeyboard("Bass",       53, 64, MyKeyb->MidiChanels[1], 41, 1);
-  MyKeyb->AddNewKeyboard("Chords",     65, 76, MyKeyb->MidiChanels[2], 55, 1);
+  MyKeyb->AddNewKeyboard("Right",       1, 52, MyKeyb->MidiChanels[0], 46, 1, 0);
+  MyKeyb->AddNewKeyboard("Bass",       53, 64, MyKeyb->MidiChanels[1], 41, 1, 0);
+  MyKeyb->AddNewKeyboard("Chords",     65, 76, MyKeyb->MidiChanels[2], 55, 1, 0);
   
   //Hotkey(char initName[], Keyboard * initKeyb,  unsigned char initKey, unsigned char initModifier[], unsigned char  initAction)
   unsigned char Modifier[2] = {1,0};

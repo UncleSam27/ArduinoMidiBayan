@@ -5,7 +5,7 @@
 
 #define NumberOfDrums 8
 #define NumberOfTicks 16
-#define DefaultBPM 120  //real work evry 1000 cycle 
+#define DefaultBPM 60  //real work evry 1000 cycle 
 
 //--------------------------------------------------------------------------------------------------------------
 // class Drum
@@ -41,7 +41,7 @@ class Drum {
 //--------------------------------------------------------------------------------------------------------------
 class DrumMachine {
   private:
-    class Drum*    Drums[NumberOfDrums];
+    class Drum     Drums[NumberOfDrums];
     unsigned char  DrumCode[NumberOfTicks]; 
     unsigned long  CurrentTick;      // текущий тик драм машины
     
@@ -49,6 +49,7 @@ class DrumMachine {
     unsigned long  NextDrumCounter;  // следующий тик драммашины
 
     bool           Enabled;
+    bool           SynchroStart;
     unsigned int   BPM;
 
   public:
@@ -56,8 +57,9 @@ class DrumMachine {
     void Enable(bool Enable);
     bool IsEnabled();
     Drum* GetDrum(unsigned char DrumNumber);
-    void SetDrumDelay(unsigned char NewDrumDelay);
-    unsigned char GetDrumDelay();
+    void SetSynchroStart(bool NewSynchroStart);
+    bool GetSynchroStart(); 
+    void GoSynchroStart();
     void SetDrumCode(unsigned char TickNum,unsigned char Code);
     unsigned char GetDrumCode(unsigned char TickNum);
     bool IsPlayed(unsigned char TickNum, unsigned char DrumNum);
@@ -68,7 +70,7 @@ class DrumMachine {
     void Play();
 };
 
-void SaveDrumMachine(char FileName[], class DrumMachine* DrumMach);
-void LoadDrumMachine(char FileName[], class DrumMachine* DrumMach);
+char SaveDrumMachine(char FileName[], class DrumMachine* DrumMach);
+char LoadDrumMachine(char FileName[], class DrumMachine* DrumMach);
 
 #endif

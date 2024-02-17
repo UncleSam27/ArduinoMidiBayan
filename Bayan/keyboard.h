@@ -18,6 +18,7 @@ class Keyboard {
     unsigned char MidiBaseNote;
     unsigned char Increment;
     unsigned char ReNew; // Flag of external Renew
+    unsigned char SynchroStart; 
 
     //----------------------------------------------------------------------
     //the constructor
@@ -26,7 +27,8 @@ class Keyboard {
            , unsigned char initKeyEnd
            , MidiChanel * initMidiChanel
            , unsigned char initMidiBaseNote
-           , unsigned char  initIncrement);
+           , unsigned char  initIncrement
+           , unsigned char  initSynchroStart);
     bool KeyIsSended(unsigned char Key);
     bool KeyIsReleased(unsigned char Key, unsigned char PushedKeys[]);
     bool AddKeyToSendedKeys(unsigned char Key);
