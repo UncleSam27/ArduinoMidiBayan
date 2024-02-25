@@ -839,8 +839,8 @@ void MenuHotkey() {
 
     // Add New Hotkey
     if (Choise == 2) {
-      if (MyKeyb->GetHotkeyCount() == 0) { // if no keyboard error msg
-        MsgPrint("Add keyboard");
+      if (MyKeyb->GetKeyboardsCount() == 0) { // if no keyboard error msg
+        MsgPrint("Add keyboard!");
         delay(1000);
       } else {
         MenuCreateHotkey();
@@ -1178,6 +1178,7 @@ void MenuCangeDrumMachineNote(class Drum* CurrentDrum, uint8_t  DrumNum){
     if (Choise == 1) break;
     if (Choise == 2) CurrentDrum->SetChanel( MenuGetInt("Chanel",  CurrentDrum->GetChanel(), 0, 15) );
     if (Choise == 3) CurrentDrum->SetNote( MenuGetInt("Note",  CurrentDrum->GetNote(), 0, 127) );      
+    if (Choise == 4) CurrentDrum->SetVelocity( MenuGetInt("Velocity",  CurrentDrum->GetVelocity(), 0, 127) );      
 
     MidiSendNote(CurrentDrum->GetChanel(), CurrentDrum->GetNote(), CurrentDrum->GetVelocity());    
     delay(400);
@@ -1198,6 +1199,7 @@ void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
   uint8_t ColumnNum = 0; //столбец
   int8_t RowNum = -1;    //строка
   Drum *CurrentDrum;
+  unsigned char MaxTick = DrumMachin->GetMaxTick();
   
   while(1){
     u8g.firstPage();
@@ -1232,7 +1234,7 @@ void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
         if(CurrentDrum->IsEnabled()) 
           u8g.drawPixel(25, RowCount*6 + 17);
         // draw drum note boxes
-        for(int ColumnCount=0; ColumnCount< NumberOfTicks; ColumnCount++){
+        for(int ColumnCount=0; ColumnCount< MaxTick; ColumnCount++){
           u8g.drawFrame(ColumnCount*6 + 31, RowCount*6 + 15, 5, 5);
           if( DrumMachin->IsPlayed(ColumnCount, RowCount))
             u8g.drawPixel(ColumnCount*6 + 33, RowCount*6 + 17);
@@ -1258,10 +1260,10 @@ void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
         Klick();
         if(Mode == ModeSelectDrum){
             RowNum++;
-            if(RowNum > 7) RowNum = -1;
+            if(RowNum > NumberOfDrums - 1) RowNum = -1;
         }
         if(Mode == ModeChangeDrum){
-            if(ColumnNum == 18) 
+            if(ColumnNum == MaxTick + 2) 
               ColumnNum = 0;
             else
               ColumnNum++;
@@ -1273,11 +1275,11 @@ void MenuCahngeDrumMachine(class DrumMachine* DrumMachin){
         Klick();
         if(Mode == ModeSelectDrum){
             RowNum--;
-            if(RowNum < -1) RowNum = 7;
+            if(RowNum < -1) RowNum = NumberOfDrums - 1;
         }
         if(Mode == ModeChangeDrum){
             if(ColumnNum == 0) 
-              ColumnNum = 18;
+              ColumnNum = MaxTick + 2;
             else
               ColumnNum--;
         }
@@ -1327,7 +1329,7 @@ void MenuDrumMachine(){
   
   while (1) {
     //Copy Init String to Menu String
-    strcpy( MenuStr, "Drum machine>Back..>Enable        >BPM           >Configure>Sync.Start    >Load>Save");
+    strcpy( MenuStr, "Drum machine>Back..>Enable        >BPM           >Ticks        >Sync.Start     >Configure>Load>Save");
     InsertIntToStr(MenuStr, 46, MyKeyb->DrumMachin->GetBPM());
     if(MyKeyb->DrumMachin->IsEnabled())
       SubStrCopy(MenuStr, 31, "Yes");
@@ -1335,10 +1337,12 @@ void MenuDrumMachine(){
       SubStrCopy(MenuStr, 31, "No");
 
     if(MyKeyb->DrumMachin->GetSynchroStart())
-      SubStrCopy(MenuStr, 71, "Yes");
+      SubStrCopy(MenuStr, 76, "Yes");
     else
-      SubStrCopy(MenuStr, 71, "No");
-    
+      SubStrCopy(MenuStr, 76, "No");
+
+    InsertIntToStr(MenuStr, 61, MyKeyb->DrumMachin->GetMaxTick());
+        
     Choise = Menu(Choise, MenuStr);
     
     if (Choise == 1) {
@@ -1356,9 +1360,11 @@ void MenuDrumMachine(){
        MyKeyb->DrumMachin->SetBPM( MenuGetInt("BPM",  MyKeyb->DrumMachin->GetBPM(), 0, 255) ); 
     }
 
-    
     if (Choise == 4) {
-      MenuCahngeDrumMachine( MyKeyb->DrumMachin );
+      if( MyKeyb->DrumMachin->GetMaxTick() == NumberOfTicks )
+        MyKeyb->DrumMachin->SetMaxTick(NumberOfValsTicks);
+      else
+        MyKeyb->DrumMachin->SetMaxTick(NumberOfTicks);      
     }
 
     if (Choise == 5) {
@@ -1367,8 +1373,12 @@ void MenuDrumMachine(){
       else
         MyKeyb->DrumMachin->SetSynchroStart(true);
     }
-
+    
     if (Choise == 6) {
+      MenuCahngeDrumMachine( MyKeyb->DrumMachin );
+    }
+
+    if (Choise == 7) {
       unsigned char Key  = MenuGetInt("Load drum",  EEPROM.read(AddressStartDrumFile), 0, 127);
       itoa(Key, fname, 10);
       strcat(fname, ".drm");
@@ -1376,13 +1386,15 @@ void MenuDrumMachine(){
       
       if (SD.exists(fname)) {
         EEPROM.write(AddressStartDrumFile, Key);
-        LoadDrumMachine(fname, MyKeyb->DrumMachin);
+        MyKeyb->DrumMachin->LoadDrumMachine(fname);
+        MyKeyb->DrumMachin->Enable(false);
+        
       } else {
         MsgPrint("No such CFG");
       }
     }
 
-    if (Choise == 7) {
+    if (Choise == 8) {
       //get keynum
       unsigned char Key = MenuGetInt("Save drum",  EEPROM.read(AddressStartDrumFile), 0, 127);
 
@@ -1391,7 +1403,7 @@ void MenuDrumMachine(){
       strcat(fname, ".drm");
       MsgPrint(fname);
       
-      if (SaveDrumMachine(fname, MyKeyb->DrumMachin) == 0) {
+      if (MyKeyb->DrumMachin->SaveDrumMachine(fname) == 0) {
         MsgPrint("Saved!");
         delay(1000);
       } else {

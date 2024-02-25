@@ -88,6 +88,11 @@ void setup() {
     MsgPrint(FName); 
 
     LoadConfigFromFlashEEPROM(); //Load Config
+
+#ifdef DRAM_MACHINE_USED
+    LoadDrumConfigFromFlashEEPROM(MyKeyb->DrumMachin); // Load drum machine config
+#endif
+    
     ColorSetup();  //Final color setup
   }else{     // if Reset is pushed load default settings
     MsgPrintWait("Set defaults!");

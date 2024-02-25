@@ -1,6 +1,7 @@
 #ifndef KEYBLOADSAVE_H
 #define KEYBLOADSAVE_H
 #include <SD.h>
+#include "midichanel.h"
 
 void SaveNameValueToSD(File *myFile, char Name[], int Value);
 void SaveNameValueToSD(File *myFile, char Name[], char Value[]);

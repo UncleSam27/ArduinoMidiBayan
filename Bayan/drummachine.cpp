@@ -1,6 +1,8 @@
 #include "drummachine.h"
 #include "midi.h"
+#include "keybloadsave.h"
 #include <SD.h>
+#include <EEPROM.h>
 
 
 //--------------------------------------------------------------------------------------------------------------
@@ -66,7 +68,8 @@ unsigned char Drum::GetVelocity(){
 //----------------------------------------------------------------------
 DrumMachine::DrumMachine(){
   Enabled = false;
-  CurrentTick = NumberOfTicks-1; // in next tick Drums start in 0 tick
+  MaxTick = NumberOfTicks;
+  CurrentTick = MaxTick -1; // in next tick Drums start in 0 tick
   BPM = DefaultBPM;
   DrumDelay = (1000000/DefaultBPM)<<4;
   NextDrumCounter = 0;
@@ -75,36 +78,6 @@ DrumMachine::DrumMachine(){
   for(unsigned char Counter=0; Counter<NumberOfTicks; Counter++){
     DrumCode[Counter] = 0;
   }
-
-
-/*
-  // test drum code
-
-  Drums[0].Enable(true);
-  Drums[0].SetChanel(9);
-  Drums[0].SetNote(45);
-  Drums[0].SetVelocity(125);
-
-  Drums[1].Enable(true);
-  Drums[1].SetChanel(9);
-  Drums[1].SetNote(53);
-  Drums[1].SetVelocity(125);
-
-    
-  SetPlayed(0, 0, true);
-  SetPlayed(4, 0, true);
-  SetPlayed(8, 0, true);
-  SetPlayed(12, 0, true);
-
-  SetPlayed(1, 1, true);
-  SetPlayed(2, 1, true);
-  SetPlayed(5, 1, true);
-  SetPlayed(6, 1, true);
-  SetPlayed(9, 1, true);
-  SetPlayed(10, 1, true);
-  SetPlayed(13, 1, true);
-  SetPlayed(14, 1, true);
-*/
 }
 
 //----------------------------------------------------------------------
@@ -142,7 +115,7 @@ bool DrumMachine::GetSynchroStart(){
 //----------------------------------------------------------------------
 void DrumMachine::GoSynchroStart(){
   if(SynchroStart){
-    CurrentTick = NumberOfTicks-1;
+    CurrentTick = MaxTick-1;
     NextDrumCounter = micros();
     Enabled = true;
   }
@@ -187,6 +160,18 @@ void DrumMachine::SetBPM(unsigned char NewBPM){
   DrumDelay = (1000000/NewBPM)<<4;
 }
 
+
+unsigned char DrumMachine::GetMaxTick(){
+  return MaxTick;  
+}
+
+void DrumMachine::SetMaxTick(unsigned char NewMaxTick){
+  if(NewMaxTick == NumberOfValsTicks)
+    MaxTick = NewMaxTick;
+  else 
+    MaxTick = NumberOfTicks;
+}
+
 void DrumMachine::PlayImmediately(){
   unsigned char Tick;
 
@@ -201,7 +186,7 @@ void DrumMachine::PlayImmediately(){
   
   // Increment Ticks
   CurrentTick++;
-  if(CurrentTick >= NumberOfTicks) CurrentTick = 0;
+  if(CurrentTick >= MaxTick) CurrentTick = 0;
     
   // Turn on all sounding in this tick notes
   Tick = DrumCode[CurrentTick];
@@ -228,32 +213,130 @@ void DrumMachine::Play(){
 }
 
 
-char SaveDrumMachine(char FileName[], class DrumMachine* DrumMach){
+
+////////////////////////////////////////////////////////////////////////////////////////
+char DrumMachine::SaveDrumMachine(char FileName[]){
   File file;
   SD.remove(FileName);//remove if exist
   file = SD.open(FileName, FILE_WRITE);
   if(!file){
     return -1;
   }
-  if(file.write((uint8_t*)DrumMach, sizeof(DrumMachine) ) ){
-    file.close();
-    return 0;    
+
+  // if the file opened okay, write to it:
+  file.println("[Main]");          
+  SaveNameValueToSD(&file,"BPM",BPM);
+  SaveNameValueToSD(&file,"MaxTick",MaxTick);
+  SaveNameValueToSD(&file,"SynchroStart", int(SynchroStart));  
+  file.println();
+
+  for(unsigned char DrumCounter = 0; DrumCounter < NumberOfDrums; DrumCounter++){ 
+     file.println("[Drum]");
+     SaveNameValueToSD(&file,"Num",      DrumCounter);
+     SaveNameValueToSD(&file,"Enable",   (unsigned char)Drums[DrumCounter].IsEnabled());     
+     SaveNameValueToSD(&file,"Chanel",   Drums[DrumCounter].GetChanel());
+     SaveNameValueToSD(&file,"Note",     Drums[DrumCounter].GetNote());
+     SaveNameValueToSD(&file,"Velocity", Drums[DrumCounter].GetVelocity());
+     file.println();
   }
+
+  file.println("[DrumCode]");
+  for(unsigned char DrumCounter = 0; DrumCounter < NumberOfDrums; DrumCounter++){ 
+    for(unsigned char TickCounter=0; TickCounter < NumberOfTicks; TickCounter++){
+      if(IsPlayed(TickCounter, DrumCounter))
+        file.print("1");
+      else
+        file.print("0");
+    }
+    file.println();
+  }
+  file.println();
+ 
   file.close();
-  return -1;
+  return 0;
 }
 
-
-char LoadDrumMachine(char FileName[], class DrumMachine* DrumMach){
-  File file;
-  file = SD.open(FileName, FILE_READ);
-  if(!file){
+////////////////////////////////////////////////////////////////////////////////////////
+char DrumMachine::LoadDrumMachine(char FileName[]){
+  File myFile;
+  char   CharBuff[MaxFileStringLen];
+  
+  myFile = SD.open(FileName, FILE_READ);
+  if(!myFile){
     return -1;
   }
-  if(file.read((uint8_t*)DrumMach, sizeof(DrumMachine) ) ){
-    file.close();
-    return 0;
+
+  Enable(false);
+  SetSynchroStart(false);
+  
+  while (ReadStringFromSD(&myFile,CharBuff) != -1) {
+    //Analog Input
+    if(strcmp(CharBuff,"[Main]")==0){
+      while(ReadStringFromSD(&myFile,CharBuff) >0){
+        if(ChkCfgStr("BPM",CharBuff)){
+          SetBPM( GetIntCfgStr(CharBuff) );
+        }
+        if(ChkCfgStr("MaxTick",CharBuff)){
+          SetMaxTick( GetIntCfgStr(CharBuff));
+        }
+        if(ChkCfgStr("SynchroStart",CharBuff)){
+          SetSynchroStart( (bool) GetIntCfgStr(CharBuff) );
+        }
+      }
+      continue;
+    }
+
+    if(strcmp(CharBuff,"[Drum]")==0){
+      unsigned char Num=0;
+      while(ReadStringFromSD(&myFile,CharBuff) >0){
+        if(ChkCfgStr("Num",CharBuff)){
+          Num = GetIntCfgStr(CharBuff);
+        }
+        if(ChkCfgStr("Enable",CharBuff)){
+          Drums[Num].Enable( (bool) GetIntCfgStr(CharBuff) );
+        }
+        if(ChkCfgStr("Chanel",CharBuff)){
+          Drums[Num].SetChanel( GetIntCfgStr(CharBuff) );
+        }
+        if(ChkCfgStr("Note",CharBuff)){
+          Drums[Num].SetNote( GetIntCfgStr(CharBuff) );
+        }
+        if(ChkCfgStr("Velocity",CharBuff)){
+          Drums[Num].SetVelocity( GetIntCfgStr(CharBuff) );
+        }
+      }
+      continue;
+    }
+
+    if(strcmp(CharBuff,"[DrumCode]")==0){
+      for(unsigned char DrumCounter = 0; DrumCounter < NumberOfDrums; DrumCounter++){ 
+        if(ReadStringFromSD(&myFile,CharBuff) >0){
+          for(unsigned char TickCounter=0; TickCounter < NumberOfTicks; TickCounter++){
+            if ( CharBuff[TickCounter] == '0' )
+              SetPlayed(TickCounter, DrumCounter, false);
+            else
+              SetPlayed(TickCounter, DrumCounter, true);
+          }
+        }
+      }
+      continue;        
+    }
   }
-  file.close();
-  return -1;
+
+  myFile.close();
+  return 0;
+}
+
+void LoadDrumConfigFromFlashEEPROM(class DrumMachine* DrumMachin){
+      char fname[20];
+      unsigned char Key  = EEPROM.read(AddressStartDrumFile);
+      if(Key == 0xFF) return -1;
+
+      itoa(Key, fname, 10);
+      strcat(fname, ".drm");
+      
+      if (SD.exists(fname)) {
+        DrumMachin->LoadDrumMachine(fname);
+        DrumMachin->Enable(false);
+      }
 }

@@ -80,7 +80,7 @@ class KeyboardS {
                 );
     int DeleteKeyboard(Keyboard* Keyb);
     void DeleteAllKeyboard();
-     unsigned int GetKeyboardsCount();
+    unsigned int GetKeyboardsCount();
     int GetKeyboardIndex(Keyboard* Keyb);
     Keyboard* GetKeyboardPtrByName(char Name[]);
     Keyboard* GetKeyboardPtr(int Index);

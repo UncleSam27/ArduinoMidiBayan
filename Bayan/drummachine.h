@@ -5,6 +5,7 @@
 
 #define NumberOfDrums 8
 #define NumberOfTicks 16
+#define NumberOfValsTicks 12
 #define DefaultBPM 60  //real work evry 1000 cycle 
 
 //--------------------------------------------------------------------------------------------------------------
@@ -48,6 +49,7 @@ class DrumMachine {
     unsigned long  DrumDelay;        // задержка в микросекундах между тиками драм машины
     unsigned long  NextDrumCounter;  // следующий тик драммашины
 
+    unsigned char  MaxTick;   
     bool           Enabled;
     bool           SynchroStart;
     unsigned int   BPM;
@@ -66,11 +68,16 @@ class DrumMachine {
     void SetPlayed(unsigned char TickNum, unsigned char DrumNum, bool Enabled);
     unsigned char GetBPM();
     void SetBPM(unsigned char NewBPM);
+    unsigned char GetMaxTick();
+    void SetMaxTick(unsigned char NewMaxTick);
     void PlayImmediately();
     void Play();
+
+    char SaveDrumMachine(char FileName[]);
+    char LoadDrumMachine(char FileName[]);
+    
 };
 
-char SaveDrumMachine(char FileName[], class DrumMachine* DrumMach);
-char LoadDrumMachine(char FileName[], class DrumMachine* DrumMach);
+void LoadDrumConfigFromFlashEEPROM(class DrumMachine* DrumMachin);
 
 #endif
