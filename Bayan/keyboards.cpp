@@ -101,8 +101,8 @@ inline void KeyboardS::Pin2Low(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, LOW);
-//  delay(1);
-  delayMicroseconds(200);
+  delay(1);
+//  delayMicroseconds(200);
 
 }
 
@@ -112,8 +112,8 @@ inline void KeyboardS::Pin2High(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, HIGH);
-  //  delay(1);
-  delayMicroseconds(200);
+  delay(1);
+  //delayMicroseconds(200);
 }
 
 //----------------------------------------------------------------------
