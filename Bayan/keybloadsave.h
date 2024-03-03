@@ -20,7 +20,7 @@ int LoadConfigFromFlashNum(unsigned char Num);
 int LoadConfigFromFlashEEPROM();
 int SaveConfigToFlash(char FName[]);
 int SaveKeybToFlash(char FName[]);
-int LoadKeybFromFlash(char FName[]);
+uint8_t LoadKeybFromFlash(char FName[]);
 int StartWithDefaultCfg();
 
 #endif // KEYBLOADSAVE_H

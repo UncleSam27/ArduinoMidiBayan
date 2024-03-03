@@ -8,7 +8,9 @@
 
 //----------------------------------------------------------------------
 int TestScancode() {
-  unsigned char Keys[MaxKeysOneTime];
+  unsigned char Keys[MaxKeysOneTime+1];
+  unsigned char StrNum;
+  unsigned char KeyNum;
 
   while (Encodr.isPress()==0) {
     MyKeyb->ScanKeyMatrix(Keys);
@@ -24,10 +26,16 @@ int TestScancode() {
     do {
       u8g.setPrintPos(5, FontHigh + 1);
       u8g.print("Pressed keys: ");
-
+      StrNum=0;
+      KeyNum=0;
       for (int counter = 0; Keys[counter] != 0x00; counter++) {
-        u8g.setPrintPos(5 + (20 * counter), (FontHigh + 1) * 2);
+        u8g.setPrintPos(5 + (20 * KeyNum), (FontHigh + 1) * (2 + StrNum));
         u8g.print(Keys[counter], DEC);
+        KeyNum++;
+        if(KeyNum == 5){
+          KeyNum = 0;
+          StrNum++;
+        }
 
       }
       Encodr.tick();
@@ -40,13 +48,17 @@ int TestScancode() {
 //----------------------------------------------------------------------
 // get Scancode func
 int TestScancode3() {
-  unsigned int MaskCode[MyKeyb->KeyOutputPinStop - MyKeyb->KeyOutputPinStart +1];
-  unsigned int Code[MyKeyb->KeyOutputPinStop - MyKeyb->KeyOutputPinStart +1];
+ 
+  unsigned int MaskCode[MaxOutCount];
+  unsigned int Code[MaxOutCount];
   unsigned char ScanCode;
 
   // Get input mask pin state
   MyKeyb->ScanKeyMatrixLow(MaskCode);
-  
+  /*
+  for(uint8_t counter=0;counter<MaxOutCount;counter++)
+    MaskCode[counter]= MyKeyb->InputKeysMask[counter];
+   */ 
    while (Encodr.isPress()==0) {
     ScanCode = 0xFF;
     // Get Keys

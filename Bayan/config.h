@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define Version "2.4.17 TEST"
+#define Version "2.4.17 MINI"
 
 //select one of screen
 #define SCREEN_MINI12864_2_1 
@@ -85,11 +85,13 @@
 #define InitScanMode             1  // 0-scan in passive mode (gerkon)    1-scan in active mode (hall)
 #define InitNormal_Pin_State     2  // 0-"normal opened contacts"  1-"normal closed contacts"  2-"auto detect"
 #define InitKeyInputPinStart     22  
-#define InitKeyInputPinStop      35
+#define InitKeyInputPinStop      37
 #define InitKeyOutputPinStart    2
 #define InitKeyOutputPinStop     9
+#define MaxOutCount              InitKeyOutputPinStop - InitKeyOutputPinStart + 1
+#define MaxInCount               InitKeyInputPinStop - InitKeyInputPinStart + 1
 #define InitScanCodeNums         0
-#define KeyCodesCount            64
+#define KeyCodesCount            128
 
 #define MaxKeyboards             16
 #define MaxMidiChanels           16
@@ -98,7 +100,7 @@
 #define MaxNameLen               15
 #define MaxHotkeys               24
 #define MaxAnalogInputs          16
-#define MaxOutCount              8
+
 
 #define MaxHotkeyMidiLen         5
 #define CountMIDIChanels         16

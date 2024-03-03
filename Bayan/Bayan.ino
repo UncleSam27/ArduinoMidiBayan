@@ -31,6 +31,7 @@ void setup() {
   pinMode(BeeperPin, OUTPUT);   // Pin For Beeper
   DebugPrint("Pins init complete\r\n"); 
 
+
   DebugPrintLn("Read EEPROM settings");
   GlobalBeepOn =            EEPROM.read(AddressBeepOn);
   DebugPrint("GlobalBeepOn: ");
@@ -76,7 +77,7 @@ void setup() {
     while(1);
   }else{
     DebugPrintLn("Load SD " KeybFilename " sucess!");
-    MenuEncoderSetup();
+    MenuEncoderSetup();             // Заново настраиваем энкодер и ориентацию экрана. 
     LCDRotation(LCD_rotation);
   }
   
@@ -102,7 +103,6 @@ void setup() {
     EEPROM.write(AddressProgramChangeMode, 2);   //New Style (MSB+LSB+Prog)
     EEPROM.write(AddressStartDrumFile, 0);       //Use "0.drm" next time
     StartWithDefaultCfg();
-
   }
   MyKeyb->SetupAllPrograms(GlobalProgramChangeMode); 
   DebugPrintLn("All ready. Start!");

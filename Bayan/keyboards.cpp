@@ -43,7 +43,7 @@ KeyboardS::KeyboardS() {
   // Set Input pin 22-37 () for KeyBoard matrix In
   for (int counter = KeyInputPinStart; counter <= KeyInputPinStop; counter++) {
     pinMode(counter, INPUT);
-    digitalWrite(counter, HIGH);
+    digitalWrite(counter, HIGH); //PullUp
   }
 
   // Set output pin 2-9 for KeyBoard matrix out all Inputs at Start
@@ -52,6 +52,7 @@ KeyboardS::KeyboardS() {
     pinMode(counter, INPUT);
     digitalWrite(counter, LOW);
   }
+
   //Get input mask (Normal pin state)
   ScanKeyMatrixLow(InputKeysMask);
 
@@ -101,8 +102,8 @@ inline void KeyboardS::Pin2Low(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, LOW);
-  delay(1);
-//  delayMicroseconds(200);
+//  delay(1);
+  delayMicroseconds(200);
 
 }
 
@@ -112,8 +113,8 @@ inline void KeyboardS::Pin2High(unsigned char Pin) {
   //Setup LOW pin state
   pinMode(Pin, OUTPUT);
   digitalWrite(Pin, HIGH);
-  delay(1);
-  //delayMicroseconds(200);
+//  delay(1);
+  delayMicroseconds(200);
 }
 
 //----------------------------------------------------------------------
@@ -149,7 +150,7 @@ void KeyboardS::ScanKeyMatrixLow(unsigned int Code[]) {
 //----------------------------------------------------------------------
 // Scan matrix 8out x 16in max
 char KeyboardS::ScanKeyMatrix(unsigned char Keys[]) {
-  unsigned int Code[8];
+  unsigned int Code[MaxOutCount];
   int ScancodesLen = 0;
 
   ScanKeyMatrixLow(Code); // get keyboard pins state
@@ -634,11 +635,6 @@ int KeyboardS::GetBoxMenuValue(DataBox * Value) {
   return Tmp;
 }
 // class KeyboardS end
-
-
-
-
-
 
 // ----------------------------------------------------------------------
 KeyboardS *InitKeyboard(KeyboardS *Keybs){

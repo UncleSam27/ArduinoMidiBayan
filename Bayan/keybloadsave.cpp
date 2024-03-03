@@ -660,10 +660,9 @@ int SaveKeybToFlash(char FName[]){
 }
 
 
-int LoadKeybFromFlash(char FName[]){
+uint8_t LoadKeybFromFlash(char FName[]){
   char   CharBuff[MaxFileStringLen];
   File myFile;
-
   myFile = SD.open(FName, FILE_READ);
         
   // if the file opened okay, read line by line
@@ -761,7 +760,7 @@ int LoadKeybFromFlash(char FName[]){
     return 0; 
   } else {
       //MsgPrintWait("ERR Write!");
-      return -1;
+      return 0xFF;
   }
 }
 
