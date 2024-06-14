@@ -12,14 +12,12 @@
 #include "control.h"
 
 
-
 void StartLogo() {
   Klick();
   //Logo
   MsgPrint("Midi Bayan");
   MsgPrint(Version);
 }
-
 
 char MenuStr[MaxAllMenuStringsLen];
 
@@ -311,17 +309,16 @@ int8_t SetupProgramFromPKGFile(char header[], MidiChanel *Chanel ) {
 int8_t MenuMidiProgramSetup(MidiChanel *Chanel) {
 
   if (CheckInstrumentPKG() == 0) {
-
     SetupProgramFromPKGFile("Instrument", Chanel );
     Chanel->SetupChanelProgram(GlobalProgramChangeMode);
-
   } else {
     // Classic Midi
     if (GlobalProgramChangeMode == 1) {
       Chanel->Prog = MenuGetInt("Instrument", Chanel->Prog, 0, 127);
     }
     // New MIDI Instrument
-    else if (GlobalProgramChangeMode == 2) {
+    else {
+      //if (GlobalProgramChangeMode == 2) {
       //unsigned char MSB, LSB, PC;
       Chanel->MSB = MenuGetInt("Set MSB", Chanel->MSB, 0, 127);
       Chanel->LSB = MenuGetInt("Set LSB", Chanel->LSB, 0, 127);
@@ -756,7 +753,7 @@ uint8_t MenuChangeHotkey(Hotkey *Hotk) {
 void MenuCreateHotkey() {
   Hotkey *Hotk;
 #ifdef DRAM_MACHINE_USED
-  strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset>DrumMachine");
+  strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset>DrumMachine>DrumSynStart");
 #else
   strcpy( MenuStr, "Select type>Mute key>Velocity Up>Velocity Down>Chanel Up>Chanel Down>Volume Up>Volume Down>Send MIDI>Load Preset");
 #endif //DRAM_MACHINE_USED
@@ -795,6 +792,10 @@ void MenuCreateHotkey() {
   else if (Choise == 10) {
     Hotk = MyKeyb->AddNewHotkey("DrumMachine",  NULL, MenuGetKey("Select Key"), Modifier, 12);
   }
+
+  else if (Choise == 11) {
+    Hotk = MyKeyb->AddNewHotkey("DrumSynStart",  NULL, MenuGetKey("Select Key"), Modifier, 13);
+  }  
 #endif //DRAM_MACHINE_USED
  
   /*else if (Choise == 11) {
@@ -945,7 +946,7 @@ void MenuSettings() {
 void MenuTest() {
   int Choise = 1;
   while (1) {
-    Choise = Menu(Choise, "Tests>Back..>Midi test>Midi Prog>Scancode test>Scancode low>Analog inputs>Graph analog>Test SD>FW Version");
+    Choise = Menu(Choise, "Tests>Back..>Midi test>Midi Prog>Keys test>Scancode test>Analog inputs>Graph analog>Test SD>FW Version");
     if (Choise == 1) {
       break;
     }
@@ -956,10 +957,10 @@ void MenuTest() {
       TestMidiInstruments();
     }
     if (Choise == 4) {
-      TestScancode();
+      TestKeys();
     }
     if (Choise == 5) {
-      TestScancode3();
+      TestScancode();
     }
     if (Choise == 6) {
       TestAnalog();

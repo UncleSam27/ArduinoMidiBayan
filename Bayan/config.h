@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define Version "2.4.17 MINI"
+#define Version "2.4.18 MINI"
 
 //select one of screen
 #define SCREEN_MINI12864_2_1 
@@ -15,7 +15,7 @@
 #define DRAM_MACHINE_USED
 
 /* uncomment for compile with BMP280 pressure sensor support*/
-//#define BMP280_USED
+#define BMP280_USED
 
 
 //############################## Hardware pin defines ###################################

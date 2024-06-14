@@ -7,7 +7,7 @@
 #include "control.h"
 
 //----------------------------------------------------------------------
-int TestScancode() {
+int TestKeys() {
   unsigned char Keys[MaxKeysOneTime+1];
   unsigned char StrNum;
   unsigned char KeyNum;
@@ -47,7 +47,7 @@ int TestScancode() {
 
 //----------------------------------------------------------------------
 // get Scancode func
-int TestScancode3() {
+int TestScancode() {
  
   unsigned int MaskCode[MaxOutCount];
   unsigned int Code[MaxOutCount];

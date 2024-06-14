@@ -1,8 +1,8 @@
 #ifndef TESTS_H
 #define TESTS_H
 
+int TestKeys();
 int TestScancode();
-int TestScancode3();
 int TestScancode2();
 int TestAnalog();
 char GraphAnalogAlgoritm();

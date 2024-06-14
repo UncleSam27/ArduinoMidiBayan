@@ -143,6 +143,14 @@ void Hotkey::HKDrumMachineStartStop(){
       else
         MyKeyb->DrumMachin->Enable(true);
 }
+
+void Hotkey::HKDrumMachineEnableSynStart(){
+      if(MyKeyb->DrumMachin->GetSynchroStart())
+        MyKeyb->DrumMachin->SetSynchroStart(false);
+      else
+        MyKeyb->DrumMachin->SetSynchroStart(true);
+}
+
 #endif // DRAM_MACHINE_USED
 
 
@@ -186,6 +194,10 @@ void Hotkey::ActionWork() {
 #ifdef DRAM_MACHINE_USED  
   else if (Action == 12) {
      HKDrumMachineStartStop();
+  }
+
+  else if (Action == 13) {
+     HKDrumMachineEnableSynStart();
   }
 #endif // DRAM_MACHINE_USED
 }

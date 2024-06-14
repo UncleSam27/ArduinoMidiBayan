@@ -41,6 +41,7 @@ class Hotkey {
 
 #ifdef DRAM_MACHINE_USED
     void HKDrumMachineStartStop();
+    void HKDrumMachineEnableSynStart();
 #endif // DRAM_MACHINE_USED
     
     void ActionWork();
